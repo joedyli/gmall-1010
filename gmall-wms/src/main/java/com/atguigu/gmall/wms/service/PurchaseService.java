@@ -1,24 +1,21 @@
-package com.atguigu.gmall.pms.service;
+package com.atguigu.gmall.wms.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.PageParamVo;
-import com.atguigu.gmall.pms.entity.CategoryEntity;
+import com.atguigu.gmall.wms.entity.PurchaseEntity;
 
-import java.util.List;
 import java.util.Map;
 
 /**
- * 商品三级分类
+ * 采购信息
  *
  * @author fengge
  * @email fengge@atguigu.com
- * @date 2020-03-31 11:01:44
+ * @date 2020-04-01 16:01:59
  */
-public interface CategoryService extends IService<CategoryEntity> {
+public interface PurchaseService extends IService<PurchaseEntity> {
 
     PageResultVo queryPage(PageParamVo paramVo);
-
-    List<CategoryEntity> queryCategoriesByPid(Long pid);
 }
 

@@ -1,4 +1,4 @@
-package com.atguigu.gmall.pms.controller;
+package com.atguigu.gmall.wms.controller;
 
 import java.util.List;
 
@@ -13,34 +13,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.atguigu.gmall.pms.entity.CategoryEntity;
-import com.atguigu.gmall.pms.service.CategoryService;
+import com.atguigu.gmall.wms.entity.PurchaseDetailEntity;
+import com.atguigu.gmall.wms.service.PurchaseDetailService;
 import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.common.bean.PageParamVo;
 
 /**
- * 商品三级分类
+ * 
  *
  * @author fengge
  * @email fengge@atguigu.com
- * @date 2020-03-31 11:01:44
+ * @date 2020-04-01 16:01:59
  */
-@Api(tags = "商品三级分类 管理")
+@Api(tags = " 管理")
 @RestController
-@RequestMapping("pms/category")
-public class CategoryController {
+@RequestMapping("wms/purchasedetail")
+public class PurchaseDetailController {
 
     @Autowired
-    private CategoryService categoryService;
-
-    @GetMapping("parent/{parentId}")
-    public ResponseVo<List<CategoryEntity>> queryCategoriesByPid(@PathVariable("parentId")Long pid){
-
-        List<CategoryEntity> categoryEntities = this.categoryService.queryCategoriesByPid(pid);
-
-        return ResponseVo.ok(categoryEntities);
-    }
+    private PurchaseDetailService purchaseDetailService;
 
     /**
      * 列表
@@ -48,7 +40,7 @@ public class CategoryController {
     @GetMapping
     @ApiOperation("分页查询")
     public ResponseVo<PageResultVo> list(PageParamVo paramVo){
-        PageResultVo pageResultVo = categoryService.queryPage(paramVo);
+        PageResultVo pageResultVo = purchaseDetailService.queryPage(paramVo);
 
         return ResponseVo.ok(pageResultVo);
     }
@@ -59,10 +51,10 @@ public class CategoryController {
      */
     @GetMapping("{id}")
     @ApiOperation("详情查询")
-    public ResponseVo<CategoryEntity> queryCategoryById(@PathVariable("id") Long id){
-		CategoryEntity category = categoryService.getById(id);
+    public ResponseVo<PurchaseDetailEntity> queryPurchaseDetailById(@PathVariable("id") Long id){
+		PurchaseDetailEntity purchaseDetail = purchaseDetailService.getById(id);
 
-        return ResponseVo.ok(category);
+        return ResponseVo.ok(purchaseDetail);
     }
 
     /**
@@ -70,8 +62,8 @@ public class CategoryController {
      */
     @PostMapping
     @ApiOperation("保存")
-    public ResponseVo<Object> save(@RequestBody CategoryEntity category){
-		categoryService.save(category);
+    public ResponseVo<Object> save(@RequestBody PurchaseDetailEntity purchaseDetail){
+		purchaseDetailService.save(purchaseDetail);
 
         return ResponseVo.ok();
     }
@@ -81,8 +73,8 @@ public class CategoryController {
      */
     @PostMapping("/update")
     @ApiOperation("修改")
-    public ResponseVo update(@RequestBody CategoryEntity category){
-		categoryService.updateById(category);
+    public ResponseVo update(@RequestBody PurchaseDetailEntity purchaseDetail){
+		purchaseDetailService.updateById(purchaseDetail);
 
         return ResponseVo.ok();
     }
@@ -93,7 +85,7 @@ public class CategoryController {
     @PostMapping("/delete")
     @ApiOperation("删除")
     public ResponseVo delete(@RequestBody List<Long> ids){
-		categoryService.removeByIds(ids);
+		purchaseDetailService.removeByIds(ids);
 
         return ResponseVo.ok();
     }

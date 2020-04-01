@@ -9,7 +9,7 @@ import lombok.Data;
 
 /**
  * spu信息
- * 
+ *
  * @author fengge
  * @email fengge@atguigu.com
  * @date 2020-03-31 11:01:44
@@ -31,7 +31,7 @@ public class SpuEntity implements Serializable {
 	/**
 	 * 所属分类id
 	 */
-	private Long catagoryId;
+	private Long categoryId;
 	/**
 	 * 品牌id
 	 */
