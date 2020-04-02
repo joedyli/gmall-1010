@@ -59,7 +59,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupMapper, AttrGroup
             BeanUtils.copyProperties(groupEntity, groupVo);
 
             // 查询每个组下的规格参数
-            List<AttrEntity> attrEntities = this.attrMapper.selectList(new QueryWrapper<AttrEntity>().eq("group_id", groupEntity.getId()));
+            List<AttrEntity> attrEntities = this.attrMapper.selectList(new QueryWrapper<AttrEntity>().eq("group_id", groupEntity.getId()).eq("type", 1));
             groupVo.setAttrEntities(attrEntities);
             return groupVo;
         }).collect(Collectors.toList());
