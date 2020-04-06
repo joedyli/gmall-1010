@@ -34,7 +34,7 @@ public class SpuDescServiceImpl extends ServiceImpl<SpuDescMapper, SpuDescEntity
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void saveSpuDesc(SpuVo spuVo) {
         List<String> spuImages = spuVo.getSpuImages();
         // 判断用户是否上传了图片
