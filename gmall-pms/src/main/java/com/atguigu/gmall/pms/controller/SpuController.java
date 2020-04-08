@@ -43,6 +43,14 @@ public class SpuController {
         return ResponseVo.ok(pageResultVo);
     }
 
+    @PostMapping("page")
+    @ApiOperation("分页查询Json")
+    public ResponseVo<List<SpuEntity>> querySpuByPage(@RequestBody PageParamVo paramVo){
+        PageResultVo pageResultVo = spuService.queryPage(paramVo);
+
+        return ResponseVo.ok((List<SpuEntity>) pageResultVo.getList());
+    }
+
     /**
      * 列表
      */
