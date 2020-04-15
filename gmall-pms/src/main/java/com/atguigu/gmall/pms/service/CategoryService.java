@@ -1,6 +1,7 @@
 package com.atguigu.gmall.pms.service;
 
 import com.atguigu.gmall.pms.vo.CategoryVo;
+import com.atguigu.gmall.pms.vo.ItemCategoryVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.atguigu.gmall.common.bean.PageResultVo;
 import com.atguigu.gmall.common.bean.PageParamVo;
@@ -23,5 +24,7 @@ public interface CategoryService extends IService<CategoryEntity> {
     List<CategoryEntity> queryCategoriesByPid(Long pid);
 
     List<CategoryVo> queryCategoryVoByPid(Long pid);
+
+    List<ItemCategoryVo> queryCategoriesByCid3(Long cid3);
 }
 

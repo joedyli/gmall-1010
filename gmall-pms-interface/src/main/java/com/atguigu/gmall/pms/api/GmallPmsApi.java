@@ -4,12 +4,36 @@ import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.*;
 import com.atguigu.gmall.pms.vo.CategoryVo;
+import com.atguigu.gmall.pms.vo.ItemCategoryVo;
+import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 public interface GmallPmsApi {
+
+    @GetMapping("pms/attrgroup/attr/withvalue")
+    public ResponseVo<List<ItemGroupVo>> queryGoupsWithAttrValues(
+            @RequestParam("cid") Long cid,
+            @RequestParam("spuId") Long spuId,
+            @RequestParam("skuId") Long skuId
+    );
+
+    @GetMapping("pms/skuattrvalue/spu/{spuId}")
+    public ResponseVo<List<SkuAttrValueEntity>> querySkuAttrValuesBySpuId(@PathVariable("spuId")Long spuId);
+
+    @GetMapping("pms/category/all/{cid3}")
+    public ResponseVo<List<ItemCategoryVo>> queryCategoriesByCid3(@PathVariable("cid3")Long cid3);
+
+    @GetMapping("pms/spudesc/{spuId}")
+    public ResponseVo<SpuDescEntity> querySpuDescById(@PathVariable("spuId") Long spuId);
+
+    @GetMapping("pms/sku/{id}")
+    public ResponseVo<SkuEntity> querySkuById(@PathVariable("id") Long id);
+
+    @GetMapping("pms/skuimages/sku/{skuId}")
+    public ResponseVo<List<SkuImagesEntity>> queryImagesBySkuId(@PathVariable("skuId")Long skuId);
 
     @PostMapping("pms/spu/page")
     public ResponseVo<List<SpuEntity>> querySpuByPage(@RequestBody PageParamVo paramVo);
