@@ -1,5 +1,5 @@
 server:
-  port: 18088
+  port: 18089
 spring:
   cloud:
     nacos:
@@ -20,9 +20,3 @@ spring:
 feign:
   sentinel:
     enabled: true
-thread:
-  pool:
-    coreSize: 100
-    maxSize: 500
-    keepalive: 60
-    blockQueueSize: 1000

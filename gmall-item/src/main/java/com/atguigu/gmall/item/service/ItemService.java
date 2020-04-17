@@ -35,134 +35,163 @@ public class ItemService {
     @Autowired
     private GmallSmsClient smsClient;
 
+    @Autowired
+    private ThreadPoolExecutor threadPoolExecutor;
+
     public ItemVo load(Long skuId) {
 
         ItemVo itemVo = new ItemVo();
 
         // 根据skuId查询sku的信息1
-        ResponseVo<SkuEntity> skuEntityResponseVo = this.pmsClient.querySkuById(skuId);
-        SkuEntity skuEntity = skuEntityResponseVo.getData();
-        if (skuEntity == null) {
-            return null;
-        }
-        itemVo.setSkuId(skuId);
-        itemVo.setTitle(skuEntity.getTitle());
-        itemVo.setSubTitle(skuEntity.getSubtitle());
-        itemVo.setPrice(skuEntity.getPrice());
-        itemVo.setWeight(skuEntity.getWeight());
-        itemVo.setDefaltImage(skuEntity.getDefaultImage());
+        CompletableFuture<SkuEntity> skuCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            ResponseVo<SkuEntity> skuEntityResponseVo = this.pmsClient.querySkuById(skuId);
+            SkuEntity skuEntity = skuEntityResponseVo.getData();
+            if (skuEntity == null) {
+                return null;
+            }
+            itemVo.setSkuId(skuId);
+            itemVo.setTitle(skuEntity.getTitle());
+            itemVo.setSubTitle(skuEntity.getSubtitle());
+            itemVo.setPrice(skuEntity.getPrice());
+            itemVo.setWeight(skuEntity.getWeight());
+            itemVo.setDefaltImage(skuEntity.getDefaultImage());
+            return skuEntity;
+        }, threadPoolExecutor);
+
 
         // 根据cid3查询分类信息2
-        ResponseVo<List<ItemCategoryVo>> categoryResponseVo = this.pmsClient.queryCategoriesByCid3(skuEntity.getCategoryId());
-        List<ItemCategoryVo> itemCategoryVos = categoryResponseVo.getData();
-        itemVo.setCategoreis(itemCategoryVos);
+        CompletableFuture<Void> categoryCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<List<ItemCategoryVo>> categoryResponseVo = this.pmsClient.queryCategoriesByCid3(skuEntity.getCategoryId());
+            List<ItemCategoryVo> itemCategoryVos = categoryResponseVo.getData();
+            itemVo.setCategoreis(itemCategoryVos);
+        }, threadPoolExecutor);
 
         // 根据品牌的id查询品牌3
-        ResponseVo<BrandEntity> brandEntityResponseVo = this.pmsClient.queryBrandById(skuEntity.getBrandId());
-        BrandEntity brandEntity = brandEntityResponseVo.getData();
-        if (brandEntity != null){
-            itemVo.setBrandId(brandEntity.getId());
-            itemVo.setBrandName(brandEntity.getName());
-        }
+        CompletableFuture<Void> brandCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<BrandEntity> brandEntityResponseVo = this.pmsClient.queryBrandById(skuEntity.getBrandId());
+            BrandEntity brandEntity = brandEntityResponseVo.getData();
+            if (brandEntity != null) {
+                itemVo.setBrandId(brandEntity.getId());
+                itemVo.setBrandName(brandEntity.getName());
+            }
+        }, threadPoolExecutor);
 
         // 根据spuId查询spu4
-        ResponseVo<SpuEntity> spuEntityResponseVo = this.pmsClient.querySpuById(skuEntity.getSpuId());
-        SpuEntity spuEntity = spuEntityResponseVo.getData();
-        if (spuEntity != null) {
-            itemVo.setSpuId(spuEntity.getId());
-            itemVo.setSpuName(spuEntity.getName());
-        }
+        CompletableFuture<Void> spuCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<SpuEntity> spuEntityResponseVo = this.pmsClient.querySpuById(skuEntity.getSpuId());
+            SpuEntity spuEntity = spuEntityResponseVo.getData();
+            if (spuEntity != null) {
+                itemVo.setSpuId(spuEntity.getId());
+                itemVo.setSpuName(spuEntity.getName());
+            }
+        }, threadPoolExecutor);
 
         // 跟据skuId查询图片5
-        ResponseVo<List<SkuImagesEntity>> skuImagesResponseVo = this.pmsClient.queryImagesBySkuId(skuId);
-        List<SkuImagesEntity> skuImagesEntities = skuImagesResponseVo.getData();
-        itemVo.setImages(skuImagesEntities);
+        CompletableFuture<Void> skuImagesCompletableFuture = CompletableFuture.runAsync(() -> {
+            ResponseVo<List<SkuImagesEntity>> skuImagesResponseVo = this.pmsClient.queryImagesBySkuId(skuId);
+            List<SkuImagesEntity> skuImagesEntities = skuImagesResponseVo.getData();
+            itemVo.setImages(skuImagesEntities);
+        }, threadPoolExecutor);
 
         // 根据skuId查询sku营销信息6
-        ResponseVo<List<ItemSaleVo>> salesResponseVo = this.smsClient.querySalesBySkuId(skuId);
-        List<ItemSaleVo> sales = salesResponseVo.getData();
-        itemVo.setSales(sales);
+        CompletableFuture<Void> salesCompletableFuture = CompletableFuture.runAsync(() -> {
+            ResponseVo<List<ItemSaleVo>> salesResponseVo = this.smsClient.querySalesBySkuId(skuId);
+            List<ItemSaleVo> sales = salesResponseVo.getData();
+            itemVo.setSales(sales);
+        }, threadPoolExecutor);
 
         // 根据skuId查询sku的库存信息7
-        ResponseVo<List<WareSkuEntity>> wareSkuResponseVo = this.wmsClient.queryWareSkusBySkuId(skuId);
-        List<WareSkuEntity> wareSkuEntities = wareSkuResponseVo.getData();
-        if (!CollectionUtils.isEmpty(wareSkuEntities)){
-            itemVo.setStore(wareSkuEntities.stream().anyMatch(wareSkuEntity -> wareSkuEntity.getStock() - wareSkuEntity.getStockLocked() > 0));
-        }
+        CompletableFuture<Void> storeCompletableFuture = CompletableFuture.runAsync(() -> {
+            ResponseVo<List<WareSkuEntity>> wareSkuResponseVo = this.wmsClient.queryWareSkusBySkuId(skuId);
+            List<WareSkuEntity> wareSkuEntities = wareSkuResponseVo.getData();
+            if (!CollectionUtils.isEmpty(wareSkuEntities)) {
+                itemVo.setStore(wareSkuEntities.stream().anyMatch(wareSkuEntity -> wareSkuEntity.getStock() - wareSkuEntity.getStockLocked() > 0));
+            }
+        }, threadPoolExecutor);
 
         // 根据spuId查询spu下的所有sku的销售属性8
-        ResponseVo<List<SkuAttrValueEntity>> skuAttrResponseVo = this.pmsClient.querySkuAttrValuesBySpuId(skuEntity.getSpuId());
-        List<SkuAttrValueEntity> skuAttrValueEntities = skuAttrResponseVo.getData();
-        if (!CollectionUtils.isEmpty(skuAttrValueEntities)) {
-            List<AttrValueVo> saleAttrs = skuAttrValueEntities.stream().map(skuAttrValueEntity -> {
-                AttrValueVo attrValueVo = new AttrValueVo();
-                BeanUtils.copyProperties(skuAttrValueEntity, attrValueVo);
-                return attrValueVo;
-            }).collect(Collectors.toList());
-            itemVo.setSaleAttrs(saleAttrs);
-        }
+        CompletableFuture<Void> saleAttrsCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<List<SkuAttrValueEntity>> skuAttrResponseVo = this.pmsClient.querySkuAttrValuesBySpuId(skuEntity.getSpuId());
+            List<SkuAttrValueEntity> skuAttrValueEntities = skuAttrResponseVo.getData();
+            if (!CollectionUtils.isEmpty(skuAttrValueEntities)) {
+                List<AttrValueVo> saleAttrs = skuAttrValueEntities.stream().map(skuAttrValueEntity -> {
+                    AttrValueVo attrValueVo = new AttrValueVo();
+                    BeanUtils.copyProperties(skuAttrValueEntity, attrValueVo);
+                    return attrValueVo;
+                }).collect(Collectors.toList());
+                itemVo.setSaleAttrs(saleAttrs);
+            }
+        }, threadPoolExecutor);
 
         // 根据spuId查询spu的海报信息9
-        ResponseVo<SpuDescEntity> spuDescEntityResponseVo = this.pmsClient.querySpuDescById(skuEntity.getSpuId());
-        SpuDescEntity spuDescEntity = spuDescEntityResponseVo.getData();
-        if (spuDescEntity != null && StringUtils.isNotBlank(spuDescEntity.getDecript())){
-            String[] images = StringUtils.split(spuDescEntity.getDecript(), ",");
-            itemVo.setSpuImages(Arrays.asList(images));
-        }
+        CompletableFuture<Void> spuImagesCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<SpuDescEntity> spuDescEntityResponseVo = this.pmsClient.querySpuDescById(skuEntity.getSpuId());
+            SpuDescEntity spuDescEntity = spuDescEntityResponseVo.getData();
+            if (spuDescEntity != null && StringUtils.isNotBlank(spuDescEntity.getDecript())) {
+                String[] images = StringUtils.split(spuDescEntity.getDecript(), ",");
+                itemVo.setSpuImages(Arrays.asList(images));
+            }
+        }, threadPoolExecutor);
 
         // 根据cid3 spuId skuId查询组及组下的规格参数及值 10
-        ResponseVo<List<ItemGroupVo>> groupResponseVo = this.pmsClient.queryGoupsWithAttrValues(skuEntity.getCategoryId(), skuEntity.getSpuId(), skuId);
-        List<ItemGroupVo> itemGroupVos = groupResponseVo.getData();
-        itemVo.setGroups(itemGroupVos);
+        CompletableFuture<Void> groupCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<List<ItemGroupVo>> groupResponseVo = this.pmsClient.queryGoupsWithAttrValues(skuEntity.getCategoryId(), skuEntity.getSpuId(), skuId);
+            List<ItemGroupVo> itemGroupVos = groupResponseVo.getData();
+            itemVo.setGroups(itemGroupVos);
+        }, threadPoolExecutor);
+
+        CompletableFuture.allOf(categoryCompletableFuture, brandCompletableFuture, spuCompletableFuture,
+                skuImagesCompletableFuture, salesCompletableFuture, storeCompletableFuture, saleAttrsCompletableFuture,
+                spuImagesCompletableFuture, groupCompletableFuture).join();
 
         return itemVo;
     }
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-
-//        CompletableFuture.runAsync(() -> {
-//            System.out.println("初始化CompletableFuture子任务：runAsync");
+//    public static void main(String[] args) throws ExecutionException, InterruptedException {
+//
+////        CompletableFuture.runAsync(() -> {
+////            System.out.println("初始化CompletableFuture子任务：runAsync");
+////        });
+//        CompletableFuture<String> afuture = CompletableFuture.supplyAsync(() -> {
+//            System.out.println("初始化CompletableFuture子任务：supplyAsync");
+//            System.out.println("=============end================");
+////            int i = 1/0;
+//            return "hello CompletableFuture!";
 //        });
-        CompletableFuture<String> afuture = CompletableFuture.supplyAsync(() -> {
-            System.out.println("初始化CompletableFuture子任务：supplyAsync");
-            System.out.println("=============end================");
-//            int i = 1/0;
-            return "hello CompletableFuture!";
-        });
-        CompletableFuture<String> bfuture = afuture.thenApplyAsync(t -> {
-            System.out.println("====================thenApplyAsync=========================");
-            System.out.println("上一个任务的返回结果：" + t);
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("====================thenApplyAsync end=========================");
-            return "hello thenApplyAsync";
-        });
-        CompletableFuture<String> cfuture = afuture.thenApplyAsync(t -> {
-            System.out.println("====================thenApplyAsync2=========================");
-            System.out.println("上一个任务的返回结果：" + t);
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("====================thenApplyAsync2 end=========================");
-            return "hello thenApplyAsync2";
-        });
-        CompletableFuture<Void> dfuture = afuture.thenAcceptAsync(t -> {
-            System.out.println("====================thenAcceptAsync=========================");
-            System.out.println("上一个任务的返回结果：" + t);
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("====================thenAcceptAsync end=========================");
-        });
-        CompletableFuture.anyOf(bfuture, cfuture, dfuture).join();
-        System.out.println("主线程输出。。。。。。。。。。相当于主线程return");
+//        CompletableFuture<String> bfuture = afuture.thenApplyAsync(t -> {
+//            System.out.println("====================thenApplyAsync=========================");
+//            System.out.println("上一个任务的返回结果：" + t);
+//            try {
+//                TimeUnit.SECONDS.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("====================thenApplyAsync end=========================");
+//            return "hello thenApplyAsync";
+//        });
+//        CompletableFuture<String> cfuture = afuture.thenApplyAsync(t -> {
+//            System.out.println("====================thenApplyAsync2=========================");
+//            System.out.println("上一个任务的返回结果：" + t);
+//            try {
+//                TimeUnit.SECONDS.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("====================thenApplyAsync2 end=========================");
+//            return "hello thenApplyAsync2";
+//        });
+//        CompletableFuture<Void> dfuture = afuture.thenAcceptAsync(t -> {
+//            System.out.println("====================thenAcceptAsync=========================");
+//            System.out.println("上一个任务的返回结果：" + t);
+//            try {
+//                TimeUnit.SECONDS.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("====================thenAcceptAsync end=========================");
+//        });
+//        CompletableFuture.allOf(bfuture, cfuture, dfuture).join();
+//        System.out.println("主线程输出。。。。。。。。。。相当于主线程return");
 //        try {
 //            System.in.read();
 //        } catch (IOException e) {
@@ -195,27 +224,27 @@ public class ItemService {
 //        threadPoolExecutor.execute(() -> {
 //            System.out.println("这是线程池构造方法的形式初始化多线程程序");
 //        });
-    }
+//    }
 }
 
-class MyCallable implements Callable<String> {
-    @Override
-    public String call() throws Exception {
-        System.out.println("这是Callable接口实现多线程程序");
-        return "callable";
-    }
-}
-
-class MyRunnable implements Runnable {
-    @Override
-    public void run() {
-        System.out.println("这是runnable接口的方式实现多线程程序");
-    }
-}
-
-class MyThread extends Thread{
-    @Override
-    public void run() {
-        System.out.println("这是thread类的方式实现多线程程序");
-    }
-}
+//class MyCallable implements Callable<String> {
+//    @Override
+//    public String call() throws Exception {
+//        System.out.println("这是Callable接口实现多线程程序");
+//        return "callable";
+//    }
+//}
+//
+//class MyRunnable implements Runnable {
+//    @Override
+//    public void run() {
+//        System.out.println("这是runnable接口的方式实现多线程程序");
+//    }
+//}
+//
+//class MyThread extends Thread{
+//    @Override
+//    public void run() {
+//        System.out.println("这是thread类的方式实现多线程程序");
+//    }
+//}
