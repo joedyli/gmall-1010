@@ -35,4 +35,17 @@ spring:
           uri: lb://index-service
           predicates:
             - Path=/index/**
-
+        - id: auth-route
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: cart-route
+          uri: lb://cart-service
+          predicates:
+            - Path=/cart/**
+      x-forwarded:
+        host-enabled: true
+auth:
+  jwt:
+    pubKeyPath: D:\\project-1010\\rsa\\rsa.pub
+    cookieName: GMALL-TOKEN

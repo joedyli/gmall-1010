@@ -12,7 +12,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 /**
- * 
+ *
  * Cookie 工具类
  *
  */
@@ -22,7 +22,7 @@ public final class CookieUtils {
 
 	/**
 	 * 得到Cookie的值, 不编码
-	 * 
+	 *
 	 * @param request
 	 * @param cookieName
 	 * @return
@@ -33,7 +33,7 @@ public final class CookieUtils {
 
 	/**
 	 * 得到Cookie的值,
-	 * 
+	 *
 	 * @param request
 	 * @param cookieName
 	 * @return
@@ -41,7 +41,7 @@ public final class CookieUtils {
 	public static String getCookieValue(HttpServletRequest request, String cookieName, boolean isDecoder) {
 		Cookie[] cookieList = request.getCookies();
 		if (cookieList == null || cookieName == null){
-			return null;			
+			return null;
 		}
 		String retValue = null;
 		try {
@@ -63,7 +63,7 @@ public final class CookieUtils {
 
 	/**
 	 * 得到Cookie的值,
-	 * 
+	 *
 	 * @param request
 	 * @param cookieName
 	 * @return
@@ -71,7 +71,7 @@ public final class CookieUtils {
 	public static String getCookieValue(HttpServletRequest request, String cookieName, String encodeString) {
 		Cookie[] cookieList = request.getCookies();
 		if (cookieList == null || cookieName == null){
-			return null;			
+			return null;
 		}
 		String retValue = null;
 		try {
@@ -120,7 +120,7 @@ public final class CookieUtils {
 
 	/**
 	 * 设置Cookie的值，并使其在指定时间内生效
-	 * 
+	 *
 	 * @param cookieMaxAge
 	 *            cookie生效的最大秒数
 	 */
@@ -157,14 +157,15 @@ public final class CookieUtils {
 	private static final String getDomainName(HttpServletRequest request) {
 		String domainName = null;
 
-		String serverName = request.getRequestURL().toString();
+		String serverName = request.getHeader("x-Forwarded-Host");
+//		String serverName = request.getRequestURL().toString();
 		if (serverName == null || serverName.equals("")) {
 			domainName = "";
 		} else {
 			serverName = serverName.toLowerCase();
-			serverName = serverName.substring(7);
-			final int end = serverName.indexOf("/");
-			serverName = serverName.substring(0, end);
+//			serverName = serverName.substring(7);
+//			final int end = serverName.indexOf("/");
+//			serverName = serverName.substring(0, end);
 			final String[] domains = serverName.split("\\.");
 			int len = domains.length;
 			if (len > 3) {

@@ -1,5 +1,5 @@
 server:
-  port: 18089
+  port: 18090
 spring:
   cloud:
     nacos:
@@ -17,13 +17,12 @@ spring:
   sleuth:
     sampler:
       probability: 1
+  redis:
+    host: 172.16.116.100
 feign:
   sentinel:
     enabled: true
 auth:
   jwt:
     pubKeyPath: D:\\project-1010\\rsa\\rsa.pub
-    priKeyPath: D:\\project-1010\\rsa\\rsa.pri
-    secret: 30489ouerweljrLROE@#)(@$*343jlsdf
     cookieName: GMALL-TOKEN
-    expire: 180
