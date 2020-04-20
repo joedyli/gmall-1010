@@ -35,6 +35,9 @@ public interface GmallPmsApi {
     @GetMapping("pms/skuimages/sku/{skuId}")
     public ResponseVo<List<SkuImagesEntity>> queryImagesBySkuId(@PathVariable("skuId")Long skuId);
 
+    @GetMapping("pms/skuattrvalue/sku/{skuId}")
+    public ResponseVo<List<SkuAttrValueEntity>> querySkuAttrValuesBySkuId(@PathVariable("skuId")Long skuId);
+
     @PostMapping("pms/spu/page")
     public ResponseVo<List<SpuEntity>> querySpuByPage(@RequestBody PageParamVo paramVo);
 

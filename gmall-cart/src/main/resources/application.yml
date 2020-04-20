@@ -26,3 +26,5 @@ auth:
   jwt:
     pubKeyPath: D:\\project-1010\\rsa\\rsa.pub
     cookieName: GMALL-TOKEN
+    userKey: user-key
+    expireTime: 15552000
