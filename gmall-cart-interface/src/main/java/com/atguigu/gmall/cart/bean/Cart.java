@@ -14,7 +14,8 @@ public class Cart {
     private String title;
     private String defaultImage;
     private List<SkuAttrValueEntity> saleAttrs; // 销售属性
-    private BigDecimal price;
+    private BigDecimal price; // 加入购物车时价格
+    private BigDecimal currentPrice; // 实时价格
     private Integer count;
     private Boolean store = false; // 库存
     private List<ItemSaleVo> sales; // 营销信息

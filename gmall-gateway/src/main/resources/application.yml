@@ -43,6 +43,12 @@ spring:
           uri: lb://cart-service
           predicates:
             - Path=/cart/**
+        - id: order-route
+          uri: lb://order-service
+          predicates:
+            - Path=/order/**
+          filters:
+            - Auth
       x-forwarded:
         host-enabled: true
 auth:

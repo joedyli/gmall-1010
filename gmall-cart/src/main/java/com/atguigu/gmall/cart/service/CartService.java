@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import springfox.documentation.spring.web.json.Json;
 
 import javax.swing.plaf.basic.BasicScrollPaneUI;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ public class CartService {
     private StringRedisTemplate redisTemplate;
 
     private static final String KEY_PREFIX = "cart:";
+    private static final String PRICE_PREFIX = "cart:price:";
 
     public void addCart(Cart cart) {
 
@@ -84,6 +86,9 @@ public class CartService {
             // 商品刚加入购物车时，默认为选中状态
             cart.setCheck(true);
 //            hashOps.put(skuId, JSON.toJSONString(cart));
+
+            // 当购物车中不存在该商品时，可能没有该商品的价格缓存，就需要新增价格缓存
+            this.redisTemplate.opsForValue().set(PRICE_PREFIX + skuId, skuEntity.getPrice().toString());
         }
         hashOps.put(skuId, JSON.toJSONString(cart));
     }
@@ -112,7 +117,12 @@ public class CartService {
         List<Cart> unloginCarts = null;
         if (!CollectionUtils.isEmpty(unloginCartJsons)){
             // 反序列化为List<Cart>集合
-            unloginCarts = unloginCartJsons.stream().map(cartJson -> JSON.parseObject(cartJson.toString(), Cart.class)).collect(Collectors.toList());
+            unloginCarts = unloginCartJsons.stream().map(cartJson -> {
+                Cart cart = JSON.parseObject(cartJson.toString(), Cart.class);
+                String currentPriceString = this.redisTemplate.opsForValue().get(PRICE_PREFIX + cart.getSkuId());
+                cart.setCurrentPrice(new BigDecimal(currentPriceString));
+                return cart;
+            }).collect(Collectors.toList());
         }
 
         // 获取登陆状态，未登录直接返回
@@ -145,7 +155,12 @@ public class CartService {
         if (CollectionUtils.isEmpty(loginCartJsons)) {
             return null;
         }
-        return loginCartJsons.stream().map(cartJson -> JSON.parseObject(cartJson.toString(), Cart.class)).collect(Collectors.toList());
+        return loginCartJsons.stream().map(cartJson -> {
+            Cart cart = JSON.parseObject(cartJson.toString(), Cart.class);
+            String currentPriceString = this.redisTemplate.opsForValue().get(PRICE_PREFIX + cart.getSkuId());
+            cart.setCurrentPrice(new BigDecimal(currentPriceString));
+            return cart;
+        }).collect(Collectors.toList());
     }
 
     public void updateNum(Cart cart) {
@@ -191,5 +206,24 @@ public class CartService {
         if (hashOps.hasKey(skuId.toString())) {
             hashOps.delete(skuId.toString());
         }
+    }
+
+    public List<Cart> queryCheckedCarts(Long userId) {
+
+        // 外层map的key
+        String key = KEY_PREFIX + userId;
+
+        // 获取内存map操作对象
+        BoundHashOperations<String, Object, Object> hashOps = this.redisTemplate.boundHashOps(key);
+
+        // 获取该用户的所有购物车记录
+        List<Object> cartJsons = hashOps.values();
+
+        if (CollectionUtils.isEmpty(cartJsons)) {
+            return null;
+        }
+
+        // 反序列化购物车，过滤出选中状态的购物车
+        return cartJsons.stream().map(cartJson -> JSON.parseObject(cartJson.toString(), Cart.class)).filter(Cart::getCheck).collect(Collectors.toList());
     }
 }

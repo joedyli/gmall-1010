@@ -5,6 +5,7 @@ import com.atguigu.gmall.cart.bean.UserInfo;
 import com.atguigu.gmall.cart.interceptor.LoginInterceptor;
 import com.atguigu.gmall.cart.service.CartService;
 import com.atguigu.gmall.common.bean.ResponseVo;
+import org.hibernate.validator.constraints.CodePointLength;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +54,12 @@ public class CartController {
         this.cartService.deleteCart(skuId);
 
         return ResponseVo.ok();
+    }
+
+    @GetMapping("{userId}")
+    public ResponseVo<List<Cart>> queryCheckedCarts(@PathVariable("userId")Long userId){
+        List<Cart> carts = this.cartService.queryCheckedCarts(userId);
+        return ResponseVo.ok(carts);
     }
 
     @GetMapping("test")

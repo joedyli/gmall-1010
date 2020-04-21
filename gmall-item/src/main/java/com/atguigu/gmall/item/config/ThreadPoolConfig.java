@@ -1,4 +1,4 @@
-package com.atguigu.gmall.item;
+package com.atguigu.gmall.item.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
