@@ -5,6 +5,7 @@ import java.util.List;
 import com.atguigu.gmall.sms.api.GmallSmsApi;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.sms.vo.SaleVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,13 @@ public class SkuBoundsController {
 
     @Autowired
     private SkuBoundsService skuBoundsService;
+
+    @GetMapping("bounds/{skuId}")
+    public ResponseVo<SkuBoundsEntity> queryBoundsBySkuId(@PathVariable("skuId")Long skuId){
+
+        SkuBoundsEntity skuBoundsEntity = this.skuBoundsService.getOne(new QueryWrapper<SkuBoundsEntity>().eq("sku_id", skuId));
+        return ResponseVo.ok(skuBoundsEntity);
+    }
 
     @GetMapping("sku/{skuId}")
     public ResponseVo<List<ItemSaleVo>> querySalesBySkuId(@PathVariable("skuId")Long skuId){

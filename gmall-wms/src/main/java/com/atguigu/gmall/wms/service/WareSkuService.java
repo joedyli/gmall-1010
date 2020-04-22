@@ -20,6 +20,6 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 
     PageResultVo queryPage(PageParamVo paramVo);
 
-    void checkAndLock(List<SkuLockVo> skuLockVos);
+    List<SkuLockVo> checkAndLock(List<SkuLockVo> skuLockVos);
 }
 

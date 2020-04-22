@@ -39,9 +39,9 @@ public class WareSkuController {
     @PostMapping("check/lock")
     public ResponseVo<List<SkuLockVo>> checkAndLock(@RequestBody List<SkuLockVo> skuLockVos){
 
-        this.wareSkuService.checkAndLock(skuLockVos);
+        List<SkuLockVo> lockVos = this.wareSkuService.checkAndLock(skuLockVos);
 
-        return ResponseVo.ok(skuLockVos);
+        return ResponseVo.ok(lockVos);
     }
 
     @GetMapping("sku/{skuId}")

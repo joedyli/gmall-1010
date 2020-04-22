@@ -22,6 +22,7 @@ import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.wms.mapper.WareSkuMapper;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
 import com.atguigu.gmall.wms.service.WareSkuService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 
@@ -49,12 +50,13 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuMapper, WareSkuEntity
         return new PageResultVo(page);
     }
 
+    @Transactional
     @Override
-    public void checkAndLock(List<SkuLockVo> skuLockVos) {
+    public List<SkuLockVo> checkAndLock(List<SkuLockVo> skuLockVos) {
 
         // 判断集合是否为空
         if (CollectionUtils.isEmpty(skuLockVos)) {
-            return;
+            return null;
         }
 
         // 遍历验库存并锁库存
@@ -67,12 +69,13 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuMapper, WareSkuEntity
             skuLockVos.stream().filter(SkuLockVo::getLock).collect(Collectors.toList()).forEach(skuLockVo -> {
                 this.wareSkuMapper.unlock(skuLockVo.getWareSkuId(), skuLockVo.getCount());
             });
-            return ;
+            return skuLockVos;
         }
 
         // 如果都锁定成功，应该把锁定状态保存到redis中（orderToken作为key，以锁定信息作为value）
         String orderToken = skuLockVos.get(0).getOrderToken();
         this.redisTemplate.opsForValue().set(KEY_PREFIX + orderToken, JSON.toJSONString(skuLockVos));
+        return null;
     }
 
     private void checkLock(SkuLockVo skuLockVo){
