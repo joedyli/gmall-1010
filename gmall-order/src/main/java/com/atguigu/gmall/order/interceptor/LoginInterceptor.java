@@ -51,8 +51,8 @@ public class LoginInterceptor implements HandlerInterceptor {
             e.printStackTrace();
         }
         // 如果解析过程中出现异常，拦截
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        return false;
+//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return true;
     }
 
     /**

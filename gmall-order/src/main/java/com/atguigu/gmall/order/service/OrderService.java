@@ -153,7 +153,7 @@ public class OrderService {
         return confirmVo;
     }
 
-    public void submit(OrderSubmitVo submitVo) {
+    public OrderEntity submit(OrderSubmitVo submitVo) {
         // 1.防重
         String orderToken = submitVo.getOrderToken();
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then " +
@@ -203,10 +203,11 @@ public class OrderService {
 
         // 4.下单（新增订单：订单表，订单详情表）
         UserInfo userInfo = LoginInterceptor.getUserInfo();
+        OrderEntity orderEntity = null;
         try {
             submitVo.setUserId(userInfo.getUserId());
             ResponseVo<OrderEntity> orderEntityResponseVo = this.omsClient.save(submitVo);
-            OrderEntity orderEntity = orderEntityResponseVo.getData();
+            orderEntity = orderEntityResponseVo.getData();
         } catch (Exception e) {
             // 如果验库存锁库存成功，但是下单失败，应该立马解锁库存
             this.rabbitTemplate.convertAndSend("order-exchange", "stock.unlock", orderToken);
@@ -220,6 +221,8 @@ public class OrderService {
         List<Long> skuIds = items.stream().map(OrderItemVo::getSkuId).collect(Collectors.toList());
         map.put("skuIds", JSON.toJSONString(skuIds));
         this.rabbitTemplate.convertAndSend("order-exchange", "cart.delete", map);
+
+        return orderEntity;
     }
 
 //    public static void main(String[] args) {
