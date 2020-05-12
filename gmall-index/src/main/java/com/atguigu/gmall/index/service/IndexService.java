@@ -5,18 +5,15 @@ import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.index.config.GmallCache;
 import com.atguigu.gmall.index.feign.GmallPmsClient;
 import com.atguigu.gmall.pms.entity.CategoryEntity;
-import com.atguigu.gmall.pms.vo.CategoryVo;
 import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RCountDownLatch;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -40,20 +37,25 @@ public class IndexService {
     private static final String KEY_PREFIX = "index:cates:";
 
     public List<CategoryEntity> queryLvl1Categories() {
-
         ResponseVo<List<CategoryEntity>> listResponseVo = this.pmsClient.queryCategoriesByPid(0l);
         return listResponseVo.getData();
     }
 
-    @GmallCache(prefix = KEY_PREFIX, timeout = 43200, lock = "lock", random = 4320)
-    public List<CategoryVo> queryLvl2CategoriesWithSub(Long pid) {
-        // 缓存中没有
-        ResponseVo<List<CategoryVo>> listResponseVo = this.pmsClient.queryCategoryVoByPid(pid);
-        List<CategoryVo> categoryVos = listResponseVo.getData();
-        return categoryVos;
+    public List<CategoryEntity> queryLvl2CategoriesWithSub(Long pid) {
+
+        ResponseVo<List<CategoryEntity>> listResponseVo = this.pmsClient.queryCategoriesWithSub(pid);
+        return listResponseVo.getData();
     }
 
-    public List<CategoryVo> queryLvl2CategoriesWithSub2(Long pid) {
+    @GmallCache(prefix = KEY_PREFIX, timeout = 43200, lock = "lock", random = 4320)
+    public List<CategoryEntity> queryLvl2CategoriesWithSub2(Long pid) {
+        // 缓存中没有
+        ResponseVo<List<CategoryEntity>> listResponseVo = this.pmsClient.queryCategoriesByPid(pid);
+        List<CategoryEntity> categories = listResponseVo.getData();
+        return categories;
+    }
+
+    /*public List<CategoryVo> queryLvl2CategoriesWithSub2(Long pid) {
 
         // 查询缓存，如果缓存中有，直接返回
         String json = this.redisTemplate.opsForValue().get(KEY_PREFIX + pid);
@@ -84,7 +86,7 @@ public class IndexService {
         lock.unlock();
 
         return categoryVos;
-    }
+    }*/
 
     public void testLock() {
 
@@ -171,7 +173,8 @@ public class IndexService {
     public String testCountDown() {
         RCountDownLatch latch = this.redissonClient.getCountDownLatch("latch");
 
-        latch.countDown();
         return "出来了一位同学。。。。";
     }
+
+
 }

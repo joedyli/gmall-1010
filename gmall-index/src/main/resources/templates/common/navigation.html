@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="typeNav" th:fragment="navigation">
+    <div class="py-container">
+        <div class="yui3-g NavList">
+            <div class="all-sorts-list">
+                <div class="yui3-u Left all-sort">
+                    <h4>全部商品分类</h4>
+                </div>
+                <div class="sort">
+                    <div class="all-sort-list2" id="app">
+                        <div th:each="cate, stat : ${cates}" th:if="${stat.index < 15}" th:class="${stat.index == 0} ? 'item bo' : 'item'">
+                            <h3><a th:href="'http://list.gmall.com?cid=' + ${cate.id}" th:text="${cate.name}">图书、音像、数字商品</a></h3>
+                            <sub-cates th:cid="${cate.id}"></sub-cates>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="yui3-u Center navArea">
+                <ul class="nav">
+                    <li class="f-item">服装城</li>
+                    <li class="f-item">美妆馆</li>
+                    <li class="f-item">谷粒超市</li>
+                    <li class="f-item">全球购</li>
+                    <li class="f-item">闪购</li>
+                    <li class="f-item">团购</li>
+                    <li class="f-item">有趣</li>
+                    <li class="f-item"><a href="http://activity.gmall.com/seckill.html" target="_blank">秒杀</a></li>
+                </ul>
+            </div>
+            <div class="yui3-u Right"></div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+
+        let subCates = {
+            template: `
+                <div class="item-list clearfix">
+                    <div class="subitem">
+                        <dl class="fore1" v-for="subCate in subCates">
+                            <dt><a href="" v-text="subCate.name">电子书</a></dt>
+                            <dd><em v-for="sub in subCate.subs"><a href="" v-text="sub.name">免费</a></em></dd>
+                        </dl>
+                    </div>
+                </div>
+            `,
+            data(){
+                return {
+                    subCates: []
+                }
+            },
+            props:['cid'], // 通过props来接收一个父组件传递的属性
+            mounted () {
+                $.get('http://api.gmall.com/index/cates/' + this.cid, ({data}) => {
+                    this.subCates = data;
+                });
+            }
+        };
+
+        let menu = new Vue({
+            el: '#app',
+            components:{
+                subCates: subCates // 将定义的对象注册为组件
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

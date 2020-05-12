@@ -3,7 +3,6 @@ package com.atguigu.gmall.pms.api;
 import com.atguigu.gmall.common.bean.PageParamVo;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.pms.entity.*;
-import com.atguigu.gmall.pms.vo.CategoryVo;
 import com.atguigu.gmall.pms.vo.ItemCategoryVo;
 import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import io.swagger.annotations.ApiOperation;
@@ -74,6 +73,6 @@ public interface GmallPmsApi {
     @GetMapping("pms/category/parent/{parentId}")
     public ResponseVo<List<CategoryEntity>> queryCategoriesByPid(@PathVariable("parentId")Long pid);
 
-    @GetMapping("pms/category/lvl1/{pid}")
-    public ResponseVo<List<CategoryVo>> queryCategoryVoByPid(@PathVariable("pid")Long pid);
+    @GetMapping("pms/category/subs/{pid}")
+    public ResponseVo<List<CategoryEntity>> queryCategoriesWithSub(@PathVariable("pid")Long pid);
 }

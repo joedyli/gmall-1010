@@ -19,6 +19,8 @@ spring:
       probability: 1
   redis:
     host: 172.16.116.100
+  thymeleaf:
+    cache: false
 feign:
   sentinel:
     enabled: true

@@ -19,6 +19,8 @@ public class Goods {
     @Field(type = FieldType.Text, analyzer = "ik_max_word")
     private String title;
     @Field(type = FieldType.Keyword, index = false)
+    private String subTitle;
+    @Field(type = FieldType.Keyword, index = false)
     private String defaultImage;
     @Field(type = FieldType.Double)
     private Double price;

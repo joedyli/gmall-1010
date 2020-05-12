@@ -2,7 +2,6 @@ package com.atguigu.gmall.pms.controller;
 
 import java.util.List;
 
-import com.atguigu.gmall.pms.vo.CategoryVo;
 import com.atguigu.gmall.pms.vo.ItemCategoryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.atguigu.gmall.pms.entity.CategoryEntity;
@@ -42,11 +40,10 @@ public class CategoryController {
         return ResponseVo.ok(itemCategoryVos);
     }
 
-    @GetMapping("lvl1/{pid}")
-    public ResponseVo<List<CategoryVo>> queryCategoryVoByPid(@PathVariable("pid")Long pid){
-
-        List<CategoryVo> categoryVos = this.categoryService.queryCategoryVoByPid(pid);
-        return ResponseVo.ok(categoryVos);
+    @GetMapping("subs/{pid}")
+    public ResponseVo<List<CategoryEntity>> queryCategoriesWithSub(@PathVariable("pid")Long pid){
+        List<CategoryEntity> categoryEntityList = this.categoryService.queryCategoriesWithSub(pid);
+        return ResponseVo.ok(categoryEntityList);
     }
 
     @GetMapping("parent/{parentId}")

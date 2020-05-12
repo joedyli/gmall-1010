@@ -15,6 +15,7 @@ public class CorsConfig {
         // 初始化一个跨域配置类
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://manager.gmall.com");// 允许那些域名跨域访问，这里一定不要写*，写*的话不能携带cookie
+        configuration.addAllowedOrigin("http://www.gmall.com");// 允许那些域名跨域访问，这里一定不要写*，写*的话不能携带cookie
         configuration.setAllowCredentials(true); // 是否可以携带cookie
         configuration.addAllowedHeader("*"); // 允许携带任何都信息跨域访问
         configuration.addAllowedMethod("*"); // 允许所有的请求方法跨域访问

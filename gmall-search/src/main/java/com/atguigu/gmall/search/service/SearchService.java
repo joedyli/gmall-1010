@@ -1,6 +1,8 @@
 package com.atguigu.gmall.search.service;
 
 import com.alibaba.fastjson.JSON;
+import com.atguigu.gmall.pms.entity.BrandEntity;
+import com.atguigu.gmall.pms.entity.CategoryEntity;
 import com.atguigu.gmall.search.bean.Goods;
 import com.atguigu.gmall.search.bean.SearchParamVo;
 import com.atguigu.gmall.search.bean.SearchResponseAttrVo;
@@ -91,7 +93,7 @@ public class SearchService {
             goods.setTitle(highlightTitle);
             return goods;
         }).collect(Collectors.toList());
-        responseVo.setData(goodsList);
+        responseVo.setGoodsList(goodsList);
 
         // 聚合结果集的解析
         Map<String, Aggregation> aggregationMap = response.getAggregations().asMap();
@@ -100,51 +102,43 @@ public class SearchService {
         ParsedLongTerms brandIdAgg = (ParsedLongTerms)aggregationMap.get("brandIdAgg");
         List<? extends Terms.Bucket> buckets = brandIdAgg.getBuckets();
         if (!CollectionUtils.isEmpty(buckets)){
-            List<String> attrValues = buckets.stream().map(bucket -> { // {id: 1, name: 尚硅谷, logo: http://www.atguigu.com/logo.gif}
+            List<BrandEntity> brands = buckets.stream().map(bucket -> { // {id: 1, name: 尚硅谷, logo: http://www.atguigu.com/logo.gif}
                 // 为了得到指定格式的json字符串，创建了一个map
-                Map<String, Object> map = new HashMap<>();
+                BrandEntity brandEntity = new BrandEntity();
                 // 获取brandIdAgg中的key，这个key就是品牌的id
                 Long brandId = ((Terms.Bucket) bucket).getKeyAsNumber().longValue();
-                map.put("id", brandId);
+                brandEntity.setId(brandId);
                 // 解析品牌名称的子聚合，获取品牌名称
                 Map<String, Aggregation> brandAggregationMap = ((Terms.Bucket) bucket).getAggregations().asMap();
                 ParsedStringTerms brandNameAgg = (ParsedStringTerms)brandAggregationMap.get("brandNameAgg");
-                map.put("name", brandNameAgg.getBuckets().get(0).getKeyAsString());
+                brandEntity.setName(brandNameAgg.getBuckets().get(0).getKeyAsString());
                 // 解析品牌logo的子聚合，获取品牌 的logo
                 ParsedStringTerms logoAgg = (ParsedStringTerms)brandAggregationMap.get("logoAgg");
                 List<? extends Terms.Bucket> logoAggBuckets = logoAgg.getBuckets();
                 if (!CollectionUtils.isEmpty(logoAggBuckets)){
-                    map.put("logo", logoAggBuckets.get(0).getKeyAsString());
+                    brandEntity.setLogo(logoAggBuckets.get(0).getKeyAsString());
                 }
                 // 把map反序列化为json字符串
-                return JSON.toJSONString(map);
+                return brandEntity;
             }).collect(Collectors.toList());
-            SearchResponseAttrVo brand = new SearchResponseAttrVo();
-            brand.setAttrId(null);
-            brand.setAttrName("品牌");
-            brand.setAttrValues(attrValues);
-            responseVo.setBrand(brand);
+            responseVo.setBrands(brands);
         }
 
         // 2. 解析聚合结果集，获取分类
         ParsedLongTerms categoryIdAgg = (ParsedLongTerms)aggregationMap.get("categoryIdAgg");
         List<? extends Terms.Bucket> categoryIdAggBuckets = categoryIdAgg.getBuckets();
         if (!CollectionUtils.isEmpty(categoryIdAggBuckets)){
-            List<String> attrValues = categoryIdAggBuckets.stream().map(bucket -> { // {id: 225, name: 手机}
-                Map<String, Object> map = new HashMap<>();
+            List<CategoryEntity> categories = categoryIdAggBuckets.stream().map(bucket -> { // {id: 225, name: 手机}
+                CategoryEntity categoryEntity = new CategoryEntity();
                 // 获取bucket的key，key就是分类的id
                 Long categoryId = ((Terms.Bucket) bucket).getKeyAsNumber().longValue();
-                map.put("id", categoryId);
+                categoryEntity.setId(categoryId);
                 // 解析分类名称的子聚合，获取分类名称
                 ParsedStringTerms categoryNameAgg = (ParsedStringTerms)((Terms.Bucket) bucket).getAggregations().get("categoryNameAgg");
-                map.put("name", categoryNameAgg.getBuckets().get(0).getKeyAsString());
-                return JSON.toJSONString(map);
+                categoryEntity.setName(categoryNameAgg.getBuckets().get(0).getKeyAsString());
+                return categoryEntity;
             }).collect(Collectors.toList());
-            SearchResponseAttrVo searchResponseAttrVo = new SearchResponseAttrVo();
-            searchResponseAttrVo.setAttrId(null);
-            searchResponseAttrVo.setAttrName("分类");
-            searchResponseAttrVo.setAttrValues(attrValues);
-            responseVo.setCategory(searchResponseAttrVo);
+            responseVo.setCategories(categories);
         }
 
         // 3. 解析聚合结果集，获取规格参数
@@ -242,20 +236,18 @@ public class SearchService {
         }
         sourceBuilder.query(boolQueryBuilder);
 
-        // 2. 构建排序
-        String sort = paramVo.getSort();
-        if (StringUtils.isNotBlank(sort)){
-            String[] sorts = StringUtils.split(sort, ":");
-            if (sorts != null && sorts.length == 2){
-                String field = "";
-                switch (sorts[0]){
-                    case "1": field = "price"; break;
-                    case "2": field = "createTime"; break;
-                    case "3": field = "sales"; break;
-                }
-                sourceBuilder.sort(field, StringUtils.equals(sorts[1], "desc") ? SortOrder.DESC : SortOrder.ASC);
-            }
+        // 2. 构建排序 0-默认，得分降序；1-按价格升序；2-按价格降序；3-按创建时间降序；4-按销量降序
+        Integer sort = paramVo.getSort();
+        String field = "";
+        SortOrder order = null;
+        switch (sort){
+            case 1: field = "price"; order = SortOrder.ASC; break;
+            case 2: field = "price"; order = SortOrder.DESC; break;
+            case 3: field = "createTime"; order = SortOrder.DESC; break;
+            case 4: field = "sales"; order = SortOrder.DESC; break;
+            default: field = "_score"; order = SortOrder.DESC; break;
         }
+        sourceBuilder.sort(field, order);
 
         // 3. 构建分页
         Integer pageNum = paramVo.getPageNum();

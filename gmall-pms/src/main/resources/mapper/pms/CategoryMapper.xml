@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.atguigu.gmall.pms.mapper.CategoryMapper">
 
-    <resultMap id="categoryMap" type="com.atguigu.gmall.pms.vo.CategoryVo" autoMapping="true">
-        <id column="id" property="id"/>
-        <collection property="subs" javaType="List" ofType="CategoryEntity" select="queryCategoryVoByPid" column="id" autoMapping="true"/>
+    <resultMap id="CategoryMap" type="categoryEntity" autoMapping="true">
+        <collection property="subs" javaType="list" ofType="categoryEntity" select="queryCategoriesByPid" column="id"/>
     </resultMap>
 
-    <select id="queryCategoryVoByPid" resultMap="categoryMap">
-        select * from pms_category where parent_id=#{pid}
+    <select id="queryCategoriesByPid" resultMap="CategoryMap">
+        select * from pms_category where parent_id = #{pid}
     </select>
 </mapper>

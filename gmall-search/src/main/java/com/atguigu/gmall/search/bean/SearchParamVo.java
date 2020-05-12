@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * 接受页面传递过来的检索参数
- * Search?keyword=小米&brandId=1,3&cid=225&props=5:高通-麒麟,6:骁龙865-硅谷1000&sort=1:desc&priceFrom=1000&priceTo=6000&pageNum=1&store=true
+ * search?keyword=小米&brandId=1,3&cid=225&props=5:高通-麒麟&props=6:骁龙865-硅谷1000&sort=1&priceFrom=1000&priceTo=6000&pageNum=1&store=true
  *
  */
 @Data
@@ -18,9 +18,10 @@ public class SearchParamVo {
 
     private Long cid; // 分类过滤
 
+    // props=5:高通-麒麟,6:骁龙865-硅谷1000
     private List<String> props; // 过滤的检索参数
 
-    private String sort;// 排序字段：1:desc (1-price 2-createTime 3-sales 默认得分 desc-降序 asc-升序)
+    private Integer sort = 0;// 排序字段：0-默认，得分降序；1-按价格升序；2-按价格降序；3-按创建时间降序；4-按销量降序
 
     // 价格区间
     private Double priceFrom;

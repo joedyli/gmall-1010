@@ -31,6 +31,8 @@ spring:
       simple:
         prefetch: 1
         acknowledge-mode: manual
+  thymeleaf:
+    cache: false
 feign:
   sentinel:
     enabled: true
