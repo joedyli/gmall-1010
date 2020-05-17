@@ -6,8 +6,7 @@ import com.atguigu.gmall.item.feign.GmallSmsClient;
 import com.atguigu.gmall.item.feign.GmallWmsClient;
 import com.atguigu.gmall.item.vo.ItemVo;
 import com.atguigu.gmall.pms.entity.*;
-import com.atguigu.gmall.pms.vo.AttrValueVo;
-import com.atguigu.gmall.pms.vo.ItemCategoryVo;
+import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import com.atguigu.gmall.pms.vo.ItemGroupVo;
 import com.atguigu.gmall.sms.vo.ItemSaleVo;
 import com.atguigu.gmall.wms.entity.WareSkuEntity;
@@ -17,9 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -58,12 +57,11 @@ public class ItemService {
             return skuEntity;
         }, threadPoolExecutor);
 
-
         // 根据cid3查询分类信息2
         CompletableFuture<Void> categoryCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
-            ResponseVo<List<ItemCategoryVo>> categoryResponseVo = this.pmsClient.queryCategoriesByCid3(skuEntity.getCategoryId());
-            List<ItemCategoryVo> itemCategoryVos = categoryResponseVo.getData();
-            itemVo.setCategoreis(itemCategoryVos);
+            ResponseVo<List<CategoryEntity>> categoryResponseVo = this.pmsClient.queryCategoriesByCid3(skuEntity.getCategoryId());
+            List<CategoryEntity> categoryEntities = categoryResponseVo.getData();
+            itemVo.setCategories(categoryEntities);
         }, threadPoolExecutor);
 
         // 根据品牌的id查询品牌3
@@ -111,19 +109,27 @@ public class ItemService {
 
         // 根据spuId查询spu下的所有sku的销售属性8
         CompletableFuture<Void> saleAttrsCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
-            ResponseVo<List<SkuAttrValueEntity>> skuAttrResponseVo = this.pmsClient.querySkuAttrValuesBySpuId(skuEntity.getSpuId());
-            List<SkuAttrValueEntity> skuAttrValueEntities = skuAttrResponseVo.getData();
-            if (!CollectionUtils.isEmpty(skuAttrValueEntities)) {
-                List<AttrValueVo> saleAttrs = skuAttrValueEntities.stream().map(skuAttrValueEntity -> {
-                    AttrValueVo attrValueVo = new AttrValueVo();
-                    BeanUtils.copyProperties(skuAttrValueEntity, attrValueVo);
-                    return attrValueVo;
-                }).collect(Collectors.toList());
-                itemVo.setSaleAttrs(saleAttrs);
-            }
+            ResponseVo<List<SaleAttrValueVo>> saleAttrValueVoResponseVo = this.pmsClient.querySkuAttrValuesBySpuId(skuEntity.getSpuId());
+            List<SaleAttrValueVo> saleAttrValueVos = saleAttrValueVoResponseVo.getData();
+            itemVo.setSaleAttrs(saleAttrValueVos);
         }, threadPoolExecutor);
 
-        // 根据spuId查询spu的海报信息9
+        // 当前sku的销售属性9
+        CompletableFuture<Void> saleAttrCompletableFuture = CompletableFuture.runAsync(() -> {
+            ResponseVo<List<SkuAttrValueEntity>> saleAttrResponseVo = this.pmsClient.querySkuAttrValuesBySkuId(skuId);
+            List<SkuAttrValueEntity> skuAttrValueEntities = saleAttrResponseVo.getData();
+            Map<Long, String> map = skuAttrValueEntities.stream().collect(Collectors.toMap(SkuAttrValueEntity::getAttrId, SkuAttrValueEntity::getAttrValue));
+            itemVo.setSaleAttr(map);
+        }, threadPoolExecutor);
+
+        // 根据spuId查询spu下的所有sku及销售属性的映射关系10
+        CompletableFuture<Void> skusJsonCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
+            ResponseVo<String> skusJsonResponseVo = this.pmsClient.querySkusJsonBySpuId(skuEntity.getSpuId());
+            String skusJson = skusJsonResponseVo.getData();
+            itemVo.setSkusJson(skusJson);
+        }, threadPoolExecutor);
+
+        // 根据spuId查询spu的海报信息11
         CompletableFuture<Void> spuImagesCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
             ResponseVo<SpuDescEntity> spuDescEntityResponseVo = this.pmsClient.querySpuDescById(skuEntity.getSpuId());
             SpuDescEntity spuDescEntity = spuDescEntityResponseVo.getData();
@@ -133,7 +139,7 @@ public class ItemService {
             }
         }, threadPoolExecutor);
 
-        // 根据cid3 spuId skuId查询组及组下的规格参数及值 10
+        // 根据cid3 spuId skuId查询组及组下的规格参数及值 12
         CompletableFuture<Void> groupCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
             ResponseVo<List<ItemGroupVo>> groupResponseVo = this.pmsClient.queryGoupsWithAttrValues(skuEntity.getCategoryId(), skuEntity.getSpuId(), skuId);
             List<ItemGroupVo> itemGroupVos = groupResponseVo.getData();
@@ -142,7 +148,7 @@ public class ItemService {
 
         CompletableFuture.allOf(categoryCompletableFuture, brandCompletableFuture, spuCompletableFuture,
                 skuImagesCompletableFuture, salesCompletableFuture, storeCompletableFuture, saleAttrsCompletableFuture,
-                spuImagesCompletableFuture, groupCompletableFuture).join();
+                saleAttrCompletableFuture, skusJsonCompletableFuture, spuImagesCompletableFuture, groupCompletableFuture).join();
 
         return itemVo;
     }

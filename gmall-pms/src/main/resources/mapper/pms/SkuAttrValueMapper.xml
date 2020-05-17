@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.atguigu.gmall.pms.mapper.SkuAttrValueMapper">
 
+    <select id="querySkuAttrValuesBySpuId" resultType="com.atguigu.gmall.pms.vo.AttrValueVo">
+        select a.attr_id,attr_name,a.attr_value
+            from pms_sku_attr_value a INNER JOIN pms_sku b on a.sku_id=b.id
+        where spu_id=#{spuId};
+    </select>
+
+    <select id="querySkusJsonBySpuId" resultType="hashmap">
+        select GROUP_CONCAT(a.attr_value) as attr_values, a.sku_id
+            from pms_sku_attr_value a INNER JOIN pms_sku b on a.sku_id=b.id
+        where b.spu_id=#{spuId} group by a.sku_id
+    </select>
 </mapper>

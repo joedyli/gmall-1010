@@ -7,22 +7,16 @@ import com.atguigu.gmall.pms.mapper.AttrMapper;
 import com.atguigu.gmall.pms.mapper.SkuAttrValueMapper;
 import com.atguigu.gmall.pms.mapper.SpuAttrValueMapper;
 import com.atguigu.gmall.pms.vo.AttrValueVo;
+import com.atguigu.gmall.pms.vo.SaleAttrValueVo;
 import com.atguigu.gmall.pms.vo.GroupVo;
 import com.atguigu.gmall.pms.vo.ItemGroupVo;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.GZIPOutputStream;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;

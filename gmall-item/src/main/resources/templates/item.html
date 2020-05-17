@@ -13,6 +13,79 @@
 	<link rel="stylesheet" type="text/css" href="http://static.gmall.com/css/all.css" />
 	<link rel="stylesheet" type="text/css" href="http://static.gmall.com/css/pages-item.css" />
 	<link rel="stylesheet" type="text/css" href="http://static.gmall.com/css/pages-zoom.css" />
+    <style type="text/css">
+        .goods-intro-list li {
+            display: inline-block;
+            width: 300px;
+        }
+        .Ptable {
+            margin: 10px 0;
+        }
+        .Ptable-item {
+            padding: 12px 0;
+            line-height: 220%;
+            color: #999;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .Ptable-item h3 {
+            width: 110px;
+            text-align: right;
+        }
+        .Ptable-item h3, .package-list h3 {
+            font-weight: 400;
+            font-size: 12px;
+            float: left;
+        }
+        h3 {
+            display: block;
+            font-size: 1.17em;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            font-weight: bold;
+        }
+        .Ptable-item dl {
+            margin-left: 110px;
+        }
+        dl {
+            display: block;
+            -webkit-margin-before: 1em;
+            -webkit-margin-after: 1em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+        }
+        .Ptable-item dt {
+            width: 160px;
+            float: left;
+            text-align: right;
+            padding-right: 5px;
+        }
+        .Ptable-item dd {
+            margin-left: 210px;
+        }
+        dd {
+            display: block;
+            -webkit-margin-start: 40px;
+        }
+        .package-list {
+            padding: 12px 0;
+            line-height: 220%;
+            color: #999;
+            font-size: 12px;
+            margin-top: -1px;
+        }
+        .package-list h3 {
+            width: 130px;
+            text-align: right;
+        }
+        .package-list p {
+            margin-left: 155px;
+            padding-right: 50px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -25,30 +98,29 @@
 
 	<!-- 商品详情 -->
 	<div class="py-container">
-		<div id="item">
+		<div id="item" th:object="${itemVo}">
+			<!-- 面包屑：分类 品牌 spu -->
 			<div class="crumb-wrap">
 				<ul class="sui-breadcrumb">
-					<li>
-						<a href="#">手机、数码、通讯</a>
+					<li th:each="category : *{categories}">
+						<a href="#" th:text="${category.name}">手机、数码、通讯</a>
 					</li>
 					<li>
-						<a href="#">手机</a>
+						<a href="#" th:text="*{brandName}">Apple苹果</a>
 					</li>
-					<li>
-						<a href="#">Apple苹果</a>
-					</li>
-					<li class="active">iphone 6S系类</li>
+					<li class="active" th:text="*{spuName}">iphone 6S系类</li>
 				</ul>
 			</div>
-			<!--product-info-->
+			<!-- 大图片及商品基本信息 -->
 			<div class="product-info">
+                <!-- 商品大图片列表 -->
 				<div class="fl preview-wrap">
 					<!--放大镜效果-->
 					<div class="zoom">
-						<!--默认第一个预览-->
+						<!--图片预览-->
 						<div id="preview" class="spec-preview">
 							<span class="jqzoom">
-								<img jqimg="./img/_/b1.png" src="./img/_/s1.png" />
+								<img th:jqimg="*{defaltImage}" th:src="*{defaltImage}" width="400" height="400" />
 							</span>
 						</div>
 						<!--下方的缩略图-->
@@ -57,32 +129,8 @@
 							<!--左右按钮-->
 							<div class="items">
 								<ul>
-									<li>
-										<img src="./img/_/s1.png" bimg="./img/_/b1.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s2.png" bimg="./img/_/b2.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s3.png" bimg="./img/_/b3.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s1.png" bimg="./img/_/b1.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s2.png" bimg="./img/_/b2.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s3.png" bimg="./img/_/b3.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s1.png" bimg="./img/_/b1.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s2.png" bimg="./img/_/b2.png" onmousemove="preview(this)" />
-									</li>
-									<li>
-										<img src="./img/_/s3.png" bimg="./img/_/b3.png" onmousemove="preview(this)" />
+									<li th:each="image : *{images}">
+										<img th:src="${image.url}" th:bimg="${image.url}" onmousemove="preview(this)" />
 									</li>
 								</ul>
 							</div>
@@ -90,12 +138,13 @@
 						</div>
 					</div>
 				</div>
-				<div class="fr itemInfo-wrap" id="app">
+                <!-- sku基本信息：标题 副标题 价格等 -->
+				<div class="fr itemInfo-wrap">
 					<div class="sku-name">
-						<h4>{{goodsdetail.name}}</h4>
+						<h4 th:text="*{title}">Apple iPhone 6s（A1700）64G玫瑰金色 移动通信电信4G手机</h4>
 					</div>
 					<div class="news">
-						<span>推荐选择下方[移动优惠购],手机套餐齐搞定,不用换号,每月还有花费返</span>
+						<span th:text="*{subTitle}">推荐选择下方[移动优惠购],手机套餐齐搞定,不用换号,每月还有花费返</span>
 					</div>
 					<div class="summary">
 						<div class="summary-wrap">
@@ -104,12 +153,16 @@
 							</div>
 							<div class="fl price">
 								<i>¥</i>
-								<em>{{goodsdetail.price}}</em>
+                                <!--
+                                    ${#numbers.formatDecimal(num,0,'COMMA',2,'POINT')}则显示 .00
+                                    ${#numbers.formatDecimal(num,1,'COMMA',2,'POINT')}则显示 0.00
+                                -->
+								<em th:text="*{#numbers.formatDecimal(price, 1, 'COMMA', 2, 'POINT')}">5999.00</em>
 								<span>降价通知</span>
 							</div>
 							<div class="fr remark">
 								<i>累计评价</i>
-								<em>{{goodsdetail.remark}}</em>
+								<em>62344</em>
 							</div>
 						</div>
 						<div class="summary-wrap">
@@ -117,8 +170,10 @@
 								<i>促　　销</i>
 							</div>
 							<div class="fl fix-width">
-								<i class="red-bg">加价购</i>
-								<em class="t-gray">满999.00另加20.00元，或满1999.00另加30.00元，或满2999.00另加40.00元，即可在购物车换购热销商品</em>
+                                <div th:each="sale : *{sales}">
+                                    <i class="red-bg" th:text="${sale.type}">加价购</i>
+                                    <em class="t-gray" th:text="${sale.desc}">满999.00另加20.00元，或满1999.00另加30.00元，或满2999.00另加40.00元，即可在购物车换购热销商品</em>
+                                </div>
 							</div>
 						</div>
 					</div>
@@ -136,84 +191,29 @@
 								<i>配 送 至</i>
 							</div>
 							<div class="fl fix-width">
-								<em class="t-gray">满999.00另加20.00元，或满1999.00另加30.00元，或满2999.00另加40.00元，即可在购物车换购热销商品</em>
+								<em class="t-gray">上海市松江区大江商厦6层</em>
 							</div>
 						</div>
+                        <div class="summary-wrap">
+                            <div class="fl title">
+                                <i>重 量(g)</i>
+                            </div>
+                            <div class="fl fix-width">
+                                <em class="t-gray" th:text="*{weight}">500</em>
+                            </div>
+                        </div>
 					</div>
-					<div class="clearfix choose">
+					<div class="clearfix choose" id="app">
 						<div id="specification" class="summary-wrap clearfix">
-							<dl>
+							<dl v-for="attr in saleAttrs" :key="attr.attrId">
 								<dt>
 									<div class="fl title">
-										<i>选择颜色</i>
+										<i>选择{{attr.attrName}}</i>
 									</div>
 								</dt>
-								<dd v-for="coloritem in goodsdetail.color" :key="coloritem.index">
-									<a href="javascript:;">{{coloritem}}</a>
+								<dd v-for="attrValue,index in attr.attrValues" :key="index" @click="saleAttr[attr.attrId]=attrValue">
+									<a href="javascript:;" :class="{'selected':attrValue === saleAttr[attr.attrId]}">{{attrValue}}</a>
 								</dd>
-
-								<!-- <dd>
-									<a href="javascript:;" class="selected">金色
-										<span title="点击取消选择">&nbsp;</span>
-									</a>
-								</dd> -->
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-										<i>内存容量</i>
-									</div>
-								</dt>
-								<dd v-for="sizeitem in goodsdetail.size" :key="sizeitem.index">
-									<a href="javascript:;">{{sizeitem}}</a>
-								</dd>
-								<!-- <dd>
-									<a href="javascript:;" class="selected">16G
-										<span title="点击取消选择">&nbsp;</span>
-									</a>
-								</dd>
-								<dd>
-									<a href="javascript:;" class="locked">128G</a>
-								</dd> -->
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-										<i>选择版本</i>
-									</div>
-								</dt>
-								<dd v-for="versionitem in goodsdetail.version" :key="versionitem.index">
-									<a href="javascript:;">{{versionitem}}</a>
-								</dd>
-								<!-- <dd>
-									<a href="javascript:;" class="selected">公开版
-										<span title="点击取消选择">&nbsp;</span>
-									</a>
-								</dd>
-								<dd>
-									<a href="javascript:;">移动版</a>
-								</dd> -->
-							</dl>
-							<dl>
-								<dt>
-									<div class="fl title">
-										<i>购买方式</i>
-									</div>
-								</dt>
-								<dd v-for="buytypeitem in goodsdetail.buytype" :key="buytypeitem.index">
-									<a href="javascript:;">{{buytypeitem}}</a>
-								</dd>
-								<!-- <dd>
-									<a href="javascript:;" class="selected">官方标配
-										<span title="点击取消选择">&nbsp;</span>
-									</a>
-								</dd>
-								<dd>
-									<a href="javascript:;">移动优惠版</a>
-								</dd>
-								<dd>
-									<a href="javascript:;" class="locked">电信优惠版</a>
-								</dd> -->
 							</dl>
 						</div>
 
@@ -238,8 +238,9 @@
 					</div>
 				</div>
 			</div>
-			<!--product-detail-->
+			<!-- 商品详情 -->
 			<div class="clearfix product-detail">
+				<!-- 左侧栏目：相关分类及品牌 -->
 				<div class="fl aside">
 					<ul class="sui-nav nav-tabs tab-wraped">
 						<li class="active">
@@ -269,7 +270,7 @@
 								<li>
 									<div class="list-wrap">
 										<div class="p-img">
-											<img src="./img/_/part01.png" />
+											<img src="http://static.gmall.com/img/_/part01.png" />
 										</div>
 										<div class="attr">
 											<em>Apple苹果iPhone 6s (A1699)</em>
@@ -288,7 +289,7 @@
 								<li>
 									<div class="list-wrap">
 										<div class="p-img">
-											<img src="./img/_/part02.png" />
+											<img src="http://static.gmall.com/img/_/part02.png" />
 										</div>
 										<div class="attr">
 											<em>Apple苹果iPhone 6s (A1699)</em>
@@ -307,7 +308,7 @@
 								<li>
 									<div class="list-wrap">
 										<div class="p-img">
-											<img src="./img/_/part03.png" />
+											<img src="http://static.gmall.com/img/_/part03.png" />
 										</div>
 										<div class="attr">
 											<em>Apple苹果iPhone 6s (A1699)</em>
@@ -324,7 +325,7 @@
 									</div>
 									<div class="list-wrap">
 										<div class="p-img">
-											<img src="./img/_/part02.png" />
+											<img src="http://static.gmall.com/img/_/part02.png" />
 										</div>
 										<div class="attr">
 											<em>Apple苹果iPhone 6s (A1699)</em>
@@ -341,7 +342,7 @@
 									</div>
 									<div class="list-wrap">
 										<div class="p-img">
-											<img src="./img/_/part03.png" />
+											<img src="http://static.gmall.com/img/_/part03.png" />
 										</div>
 										<div class="attr">
 											<em>Apple苹果iPhone 6s (A1699)</em>
@@ -365,13 +366,14 @@
 					</div>
 				</div>
 				<div class="fr detail">
+					<!-- 选择搭配 -->
 					<div class="clearfix fitting">
 						<h4 class="kt">选择搭配</h4>
 						<div class="good-suits">
 							<div class="fl master">
 								<div class="list-wrap">
 									<div class="p-img">
-										<img src="./img/_/l-m01.png" />
+										<img src="http://static.gmall.com/img/_/l-m01.png" />
 									</div>
 									<em>￥5299</em>
 									<i>+</i>
@@ -380,8 +382,8 @@
 							<div class="fl suits">
 								<ul class="suit-list">
 									<li class="">
-										<div id="">
-											<img src="./img/_/dp01.png" />
+										<div>
+											<img src="http://static.gmall.com/img/_/dp01.png" />
 										</div>
 										<i>Feless费勒斯VR</i>
 										<label data-toggle="checkbox" class="checkbox-pretty">
@@ -391,7 +393,7 @@
 									</li>
 									<li class="">
 										<div id="">
-											<img src="./img/_/dp02.png" /> </div>
+											<img src="http://static.gmall.com/img/_/dp02.png" /> </div>
 										<i>Feless费勒斯VR</i>
 										<label data-toggle="checkbox" class="checkbox-pretty">
 											<input type="checkbox">
@@ -400,7 +402,7 @@
 									</li>
 									<li class="">
 										<div id="">
-											<img src="./img/_/dp03.png" />
+											<img src="http://static.gmall.com/img/_/dp03.png" />
 										</div>
 										<i>Feless费勒斯VR</i>
 										<label data-toggle="checkbox" class="checkbox-pretty">
@@ -410,7 +412,7 @@
 									</li>
 									<li class="">
 										<div id="">
-											<img src="./img/_/dp04.png" />
+											<img src="http://static.gmall.com/img/_/dp04.png" />
 										</div>
 										<i>Feless费勒斯VR</i>
 										<label data-toggle="checkbox" class="checkbox-pretty">
@@ -430,7 +432,9 @@
 							</div>
 						</div>
 					</div>
+					<!-- 商品详情主体部分 -->
 					<div class="tab-main intro">
+						<!-- 商品详情主体部分的菜单：商品介绍 规格与包装 售后保障 商品评价 手机社区 等等 -->
 						<ul class="sui-nav nav-tabs tab-wraped">
 							<li class="active">
 								<a href="#one" data-toggle="tab">
@@ -460,6 +464,7 @@
 						</ul>
 						<div class="clearfix"></div>
 						<div class="tab-content tab-wraped">
+							<!-- 商品介绍 -->
 							<div id="one" class="tab-pane active">
 								<ul class="goods-intro unstyled">
 									<li>分辨率：1920*1080(FHD)</li>
@@ -478,17 +483,27 @@
 									<li>机身内存：64GB</li>
 								</ul>
 								<div class="intro-detail">
-									<img src="./img/_/intro01.png" />
-									<img src="./img/_/intro02.png" />
-									<img src="./img/_/intro03.png" />
+									<img th:each="spuImage : *{spuImages}" th:src="${spuImage}"/>
 								</div>
 							</div>
+							<!-- 规格与包装 -->
 							<div id="two" class="tab-pane">
-								<p>规格与包装</p>
+                                <div class="Ptable">
+                                    <div class="Ptable-item" th:each="group : *{groups}">
+                                        <h3 th:text="${group.groupName}">主体</h3>
+                                        <dl>
+                                            <div th:each="attr : ${group.attrValues}">
+                                                <dt th:text="${attr.attrName}">品牌</dt><dd th:text="${attr.attrValue}">华为（HUAWEI）</dd>
+                                            </div>
+                                        </dl>
+                                    </div>
+                                </div>
 							</div>
+							<!-- 售后保障 -->
 							<div id="three" class="tab-pane">
 								<p>售后保障</p>
 							</div>
+							<!-- 商品评价 -->
 							<div id="four" class="tab-pane">
 								<div class="comment">
 									<div class="com-tit">商品评价</div>
@@ -522,7 +537,7 @@
 											<div class="com-item">
 												<div class="user-column">
 													<div class="username">
-														<img src="./img/_/photo.jpg" />用户****1</div>
+														<img src="http://static.gmall.com/img/_/photo.jpg" />用户****1</div>
 													<div class="usernum">品享值258698</div>
 												</div>
 												<div class="user-info">
@@ -553,7 +568,7 @@
 											<div class="com-item">
 												<div class="user-column">
 													<div class="username">
-														<img src="./img/_/photo.jpg" />用户****1</div>
+														<img src="http://static.gmall.com/img/_/photo.jpg" />用户****1</div>
 													<div class="usernum">品享值258698</div>
 												</div>
 												<div class="user-info">
@@ -578,7 +593,7 @@
 											<div class="com-item">
 												<div class="user-column">
 													<div class="username">
-														<img src="./img/_/photo.jpg" />用户****1</div>
+														<img src="http://static.gmall.com/img/_/photo.jpg" />用户****1</div>
 													<div class="usernum">品享值258698</div>
 												</div>
 												<div class="user-info">
@@ -603,7 +618,7 @@
 											<div class="com-item">
 												<div class="user-column">
 													<div class="username">
-														<img src="./img/_/photo.jpg" />用户****1</div>
+														<img src="http://static.gmall.com/img/_/photo.jpg" />用户****1</div>
 													<div class="usernum">品享值258698</div>
 												</div>
 												<div class="user-info">
@@ -628,7 +643,7 @@
 											<div class="com-item">
 												<div class="user-column">
 													<div class="username">
-														<img src="./img/_/photo.jpg" />用户****1</div>
+														<img src="http://static.gmall.com/img/_/photo.jpg" />用户****1</div>
 													<div class="usernum">品享值258698</div>
 												</div>
 												<div class="user-info">
@@ -654,6 +669,7 @@
 									</div>
 								</div>
 							</div>
+							<!-- 手机社区 -->
 							<div id="five" class="tab-pane">
 								<p>手机社区</p>
 							</div>
@@ -670,7 +686,7 @@
 						<li class="yui3-u-1-6">
 							<div class="list-wrap">
 								<div class="p-img">
-									<img src="./img/_/itemlike01.png" />
+									<img src="http://static.gmall.com/img/_/itemlike01.png" />
 								</div>
 								<div class="attr">
 									<em>DELL戴尔Ins 15MR-7528SS 15英寸 银色 笔记本</em>
@@ -689,7 +705,7 @@
 						<li class="yui3-u-1-6">
 							<div class="list-wrap">
 								<div class="p-img">
-									<img src="./img/_/itemlike02.png" />
+									<img src="http://static.gmall.com/img/_/itemlike02.png" />
 								</div>
 								<div class="attr">
 									<em>Apple苹果iPhone 6s/6s Plus 16G 64G 128G</em>
@@ -708,7 +724,7 @@
 						<li class="yui3-u-1-6">
 							<div class="list-wrap">
 								<div class="p-img">
-									<img src="./img/_/itemlike03.png" />
+									<img src="http://static.gmall.com/img/_/itemlike03.png" />
 								</div>
 								<div class="attr">
 									<em>DELL戴尔Ins 15MR-7528SS 15英寸 银色 笔记本</em>
@@ -727,7 +743,7 @@
 						<li class="yui3-u-1-6">
 							<div class="list-wrap">
 								<div class="p-img">
-									<img src="./img/_/itemlike04.png" />
+									<img src="http://static.gmall.com/img/_/itemlike04.png" />
 								</div>
 								<div class="attr">
 									<em>DELL戴尔Ins 15MR-7528SS 15英寸 银色 笔记本</em>
@@ -746,7 +762,7 @@
 						<li class="yui3-u-1-6">
 							<div class="list-wrap">
 								<div class="p-img">
-									<img src="./img/_/itemlike05.png" />
+									<img src="http://static.gmall.com/img/_/itemlike05.png" />
 								</div>
 								<div class="attr">
 									<em>DELL戴尔Ins 15MR-7528SS 15英寸 银色 笔记本</em>
@@ -765,7 +781,7 @@
 						<li class="yui3-u-1-6">
 							<div class="list-wrap">
 								<div class="p-img">
-									<img src="./img/_/itemlike06.png" />
+									<img src="http://static.gmall.com/img/_/itemlike06.png" />
 								</div>
 								<div class="attr">
 									<em>DELL戴尔Ins 15MR-7528SS 15英寸 银色 笔记本</em>
@@ -932,29 +948,30 @@
 		</div>
 	</div>
 
-	<script type="text/javascript" src="./js/plugins/jquery/jquery.min.js"></script>
-	<script type="text/javascript" src="./js/plugins/sui/sui.min.js"></script>
-	<script type="text/javascript" src="./js/plugins/jquery.jqzoom/jquery.jqzoom.js"></script>
-	<script type="text/javascript" src="./js/plugins/jquery.jqzoom/zoom.js"></script>
-	<script type="text/javascript" src="./js/plugins/updateimg.js"></script>
+	<script type="text/javascript" src="http://static.gmall.com/js/plugins/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="http://static.gmall.com/js/plugins/sui/sui.min.js"></script>
+	<script type="text/javascript" src="http://static.gmall.com/js/plugins/jquery.jqzoom/jquery.jqzoom.js"></script>
+	<script type="text/javascript" src="http://static.gmall.com/js/plugins/jquery.jqzoom/zoom.js"></script>
+	<script type="text/javascript" src="http://static.gmall.com/js/plugins/updateimg.js"></script>
 	<!-- 引入组件库 -->
-	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.8/dist/vue.js"></script>
-	<script src="https://cdn.bootcss.com/element-ui/2.5.4/index.js"></script>
-	<script>
+	<script src="http://static.gmall.com/js/plugins/vue.js"></script>
+	<script th:inline="javascript">
 		new Vue({
 			el: '#app',
-			data() {
-				return {
-					goodsdetail: {
-						name: 'Apple iPhone 6s（A1700）64G玫瑰金色 移动通信电信4G手机',
-						price: '5299',
-						remark:'62344',
-						color: ['金色','银色','黑色'],
-						size: ['16G','64G','128G'],
-						version: ['公开版', '移动版'],
-						buytype: ['官方标配', '移动优惠版','电信优惠版'],
-						other:['保护套装','充电套装']
-
+			data: {
+				saleAttrs: [[${itemVo.saleAttrs}]], // 销售属性可选项
+				saleAttr: [[${itemVo.saleAttr}]],
+				skusJson: JSON.parse(decodeURI([[${itemVo.skusJson}]])), // 销售属性和skuId的关系
+				skuId: [[${itemVo.skuId}]]
+			},
+			watch: {
+				saleAttr: {
+					deep: true,
+					handler(newSaleAttr) {
+						console.log(newSaleAttr)
+						let key = Object.values(newSaleAttr).join(",")
+						this.skuId = this.skusJson[key]
+						window.location = `http://item.gmall.com/${this.skuId}.html`
 					}
 				}
 			}

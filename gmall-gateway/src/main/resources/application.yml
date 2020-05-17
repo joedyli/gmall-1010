@@ -40,6 +40,14 @@ spring:
           uri: lb://index-service
           predicates:
             - Path=/index/**
+        - id: item-route1 # 商品详情页的同步请求路由
+          uri: lb://item-service
+          predicates:
+            - Host=item.gmall.com
+        - id: item-route2 # 商品详情页的异步请求路由
+          uri: lb://item-service
+          predicates:
+            - Path=/item/**
         - id: auth-route
           uri: lb://auth-service
           predicates:
