@@ -17,6 +17,8 @@ spring:
   sleuth:
     sampler:
       probability: 1
+  thymeleaf:
+    cache: false
 feign:
   sentinel:
     enabled: true
@@ -27,3 +29,4 @@ auth:
     secret: 30489ouerweljrLROE@#)(@$*343jlsdf
     cookieName: GMALL-TOKEN
     expire: 180
+    unick: unick

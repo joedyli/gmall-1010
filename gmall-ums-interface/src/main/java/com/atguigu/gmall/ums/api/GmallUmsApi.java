@@ -14,7 +14,7 @@ public interface GmallUmsApi {
 
     @GetMapping("ums/user/query")
     public ResponseVo<UserEntity> queryUser(
-            @RequestParam("username")String username,
+            @RequestParam("loginName")String loginName,
             @RequestParam("password")String password
     );
 

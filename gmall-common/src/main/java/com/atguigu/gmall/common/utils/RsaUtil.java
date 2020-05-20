@@ -7,7 +7,7 @@ import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class RsaUtils {
+public class RsaUtil {
     /**
      * 从文件中读取公钥
      *

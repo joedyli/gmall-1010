@@ -1,6 +1,6 @@
 package com.atguigu.gmall.gateway.filter;
 
-import com.atguigu.gmall.common.utils.JwtUtils;
+import com.atguigu.gmall.common.utils.JwtUtil;
 import com.atguigu.gmall.gateway.config.JwtProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -58,7 +58,7 @@ public class AuthGatewayFilter implements GatewayFilter {
 
         try {
             // 3.解析jwt
-            JwtUtils.getInfoFromToken(token, this.properties.getPublicKey());
+            JwtUtil.getInfoFromToken(token, this.properties.getPublicKey());
             // 5.放行
             return chain.filter(exchange);
         } catch (Exception e) {

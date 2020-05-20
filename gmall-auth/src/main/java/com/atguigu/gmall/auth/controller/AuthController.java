@@ -2,19 +2,15 @@ package com.atguigu.gmall.auth.controller;
 
 import com.atguigu.gmall.auth.config.JwtProperties;
 import com.atguigu.gmall.auth.service.AuthService;
-import com.atguigu.gmall.common.bean.ResponseVo;
-import com.atguigu.gmall.common.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@RestController
-@RequestMapping("auth")
+@Controller
 public class AuthController {
 
     @Autowired
@@ -23,15 +19,24 @@ public class AuthController {
     @Autowired
     private JwtProperties jwtProperties;
 
-    @PostMapping("accredit")
-    public ResponseVo<Object> accredit(
-            @RequestParam("username")String username,
+    @GetMapping("toLogin.html")
+    public String toLogin(@RequestParam("returnUrl")String returnUrl, Model model){
+
+        // 把登录前的页面地址，记录到登录页面，以备将来登录成功，回到登录前的页面
+        model.addAttribute("returnUrl", returnUrl);
+        return "login";
+    }
+
+    @PostMapping("login")
+    public String login(
+            @RequestParam("loginName")String loginName,
             @RequestParam("password")String password,
+            @RequestParam("returnUrl")String returnUrl,
             HttpServletRequest request, HttpServletResponse response
     ){
-        String token = this.authService.accredit(username, password);
-        // 4. 放入cookie中，响应给浏览器
-        CookieUtils.setCookie(request, response, this.jwtProperties.getCookieName(), token, this.jwtProperties.getExpire() * 60);
-        return ResponseVo.ok();
+        this.authService.accredit(loginName, password, request, response);
+
+        // 登录成功重定向到登录前页面
+        return "redirect:" + returnUrl;
     }
 }

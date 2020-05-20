@@ -16,9 +16,9 @@ import java.net.URLEncoder;
  * Cookie 工具类
  *
  */
-public final class CookieUtils {
+public final class CookieUtil {
 
-	static final Logger logger = LoggerFactory.getLogger(CookieUtils.class);
+	static final Logger logger = LoggerFactory.getLogger(CookieUtil.class);
 
 	/**
 	 * 得到Cookie的值, 不编码

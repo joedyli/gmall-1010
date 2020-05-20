@@ -4,8 +4,9 @@ import com.atguigu.gmall.auth.config.JwtProperties;
 import com.atguigu.gmall.auth.feign.GmallUmsClient;
 import com.atguigu.gmall.common.bean.ResponseVo;
 import com.atguigu.gmall.common.exception.UserException;
-import com.atguigu.gmall.common.utils.CookieUtils;
-import com.atguigu.gmall.common.utils.JwtUtils;
+import com.atguigu.gmall.common.utils.CookieUtil;
+import com.atguigu.gmall.common.utils.IpUtil;
+import com.atguigu.gmall.common.utils.JwtUtil;
 import com.atguigu.gmall.ums.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,11 +27,11 @@ public class AuthService {
     @Autowired
     private JwtProperties jwtProperties;
 
-    public String accredit(String username, String password) {
+    public void accredit(String loginName, String password, HttpServletRequest request, HttpServletResponse response) {
 
         try {
             // 1. 完成远程请求，获取用户信息
-            ResponseVo<UserEntity> userEntityResponseVo = this.umsClient.queryUser(username, password);
+            ResponseVo<UserEntity> userEntityResponseVo = this.umsClient.queryUser(loginName, password);
             UserEntity userEntity = userEntityResponseVo.getData();
 
             // 2. 判断用户信息是否为空
@@ -38,11 +39,22 @@ public class AuthService {
                 throw new UserException("用户名或者密码有误！");
             }
 
-            // 3. 制作jwt类型的token信息
+            // 3. 把用户id及用户名放入载荷
             Map<String, Object> map = new HashMap<>();
             map.put("userId", userEntity.getId());
             map.put("username", userEntity.getUsername());
-            return JwtUtils.generateToken(map, this.jwtProperties.getPrivateKey(), this.jwtProperties.getExpire());
+
+            // 4. 为了防止jwt被别人盗取，载荷中加入用户ip地址
+            String ipAddress = IpUtil.getIpAddress(request);
+            map.put("ip", ipAddress);
+
+            // 5. 制作jwt类型的token信息
+            String token = JwtUtil.generateToken(map, this.jwtProperties.getPrivateKey(), this.jwtProperties.getExpire());
+
+            // 6. 把jwt放入cookie中
+            CookieUtil.setCookie(request, response, this.jwtProperties.getCookieName(), token, this.jwtProperties.getExpire() * 60);
+            // 7.用户昵称放入cookie中，方便页面展示昵称
+            CookieUtil.setCookie(request, response, this.jwtProperties.getUnick(), userEntity.getNickname(), this.jwtProperties.getExpire() * 60);
 
         } catch (Exception e) {
             e.printStackTrace();

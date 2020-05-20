@@ -140,12 +140,15 @@
 				</div>
                 <!-- sku基本信息：标题 副标题 价格等 -->
 				<div class="fr itemInfo-wrap">
+					<!-- 标题 -->
 					<div class="sku-name">
 						<h4 th:text="*{title}">Apple iPhone 6s（A1700）64G玫瑰金色 移动通信电信4G手机</h4>
 					</div>
+					<!-- 副标题 -->
 					<div class="news">
 						<span th:text="*{subTitle}">推荐选择下方[移动优惠购],手机套餐齐搞定,不用换号,每月还有花费返</span>
 					</div>
+					<!-- 价格、评价、促销 -->
 					<div class="summary">
 						<div class="summary-wrap">
 							<div class="fl title">
@@ -177,6 +180,7 @@
 							</div>
 						</div>
 					</div>
+					<!-- 支持 配送 重量 -->
 					<div class="support">
 						<div class="summary-wrap">
 							<div class="fl title">
@@ -203,6 +207,7 @@
                             </div>
                         </div>
 					</div>
+					<!-- 销售属性 -->
 					<div class="clearfix choose" id="app">
 						<div id="specification" class="summary-wrap clearfix">
 							<dl v-for="attr in saleAttrs" :key="attr.attrId">
@@ -222,15 +227,15 @@
 								<div class="control-group">
 									<div class="controls">
 										<input autocomplete="off" type="text" value="1" minnum="1" class="itxt" />
-										<a href="javascript:void(0)" class="increment plus">+</a>
-										<a href="javascript:void(0)" class="increment mins">-</a>
+										<a href="javascript:void(0)" class="increment plus" @click="++count">+</a>
+										<a href="javascript:void(0)" class="increment mins" @click="--count">-</a>
 									</div>
 								</div>
 							</div>
 							<div class="fl">
 								<ul class="btn-choose unstyled">
 									<li>
-										<a href="cart.html" target="_blank" class="sui-btn  btn-danger addshopcar">加入购物车</a>
+										<a :href="'http://cart.gmall.com?skuId=' + skuId + '&count=' + count" target="_blank" class="sui-btn  btn-danger addshopcar">加入购物车</a>
 									</li>
 								</ul>
 							</div>
@@ -486,7 +491,7 @@
 									<img th:each="spuImage : *{spuImages}" th:src="${spuImage}"/>
 								</div>
 							</div>
-							<!-- 规格与包装 -->
+							<!-- 规格参数 -->
 							<div id="two" class="tab-pane">
                                 <div class="Ptable">
                                     <div class="Ptable-item" th:each="group : *{groups}">
@@ -962,7 +967,8 @@
 				saleAttrs: [[${itemVo.saleAttrs}]], // 销售属性可选项
 				saleAttr: [[${itemVo.saleAttr}]],
 				skusJson: JSON.parse(decodeURI([[${itemVo.skusJson}]])), // 销售属性和skuId的关系
-				skuId: [[${itemVo.skuId}]]
+				skuId: [[${itemVo.skuId}]],
+				count: 1
 			},
 			watch: {
 				saleAttr: {

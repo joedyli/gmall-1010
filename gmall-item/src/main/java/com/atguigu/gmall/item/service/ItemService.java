@@ -107,14 +107,14 @@ public class ItemService {
             }
         }, threadPoolExecutor);
 
-        // 根据spuId查询spu下的所有sku的销售属性8
+        // 根据spuId查询spu下的所有sku的销售属性
         CompletableFuture<Void> saleAttrsCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
             ResponseVo<List<SaleAttrValueVo>> saleAttrValueVoResponseVo = this.pmsClient.querySkuAttrValuesBySpuId(skuEntity.getSpuId());
             List<SaleAttrValueVo> saleAttrValueVos = saleAttrValueVoResponseVo.getData();
             itemVo.setSaleAttrs(saleAttrValueVos);
         }, threadPoolExecutor);
 
-        // 当前sku的销售属性9
+        // 当前sku的销售属性
         CompletableFuture<Void> saleAttrCompletableFuture = CompletableFuture.runAsync(() -> {
             ResponseVo<List<SkuAttrValueEntity>> saleAttrResponseVo = this.pmsClient.querySkuAttrValuesBySkuId(skuId);
             List<SkuAttrValueEntity> skuAttrValueEntities = saleAttrResponseVo.getData();
@@ -122,14 +122,14 @@ public class ItemService {
             itemVo.setSaleAttr(map);
         }, threadPoolExecutor);
 
-        // 根据spuId查询spu下的所有sku及销售属性的映射关系10
+        // 根据spuId查询spu下的所有sku及销售属性的映射关系
         CompletableFuture<Void> skusJsonCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
             ResponseVo<String> skusJsonResponseVo = this.pmsClient.querySkusJsonBySpuId(skuEntity.getSpuId());
             String skusJson = skusJsonResponseVo.getData();
             itemVo.setSkusJson(skusJson);
         }, threadPoolExecutor);
 
-        // 根据spuId查询spu的海报信息11
+        // 根据spuId查询spu的海报信息9
         CompletableFuture<Void> spuImagesCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
             ResponseVo<SpuDescEntity> spuDescEntityResponseVo = this.pmsClient.querySpuDescById(skuEntity.getSpuId());
             SpuDescEntity spuDescEntity = spuDescEntityResponseVo.getData();
@@ -139,7 +139,7 @@ public class ItemService {
             }
         }, threadPoolExecutor);
 
-        // 根据cid3 spuId skuId查询组及组下的规格参数及值 12
+        // 根据cid3 spuId skuId查询组及组下的规格参数及值 10
         CompletableFuture<Void> groupCompletableFuture = skuCompletableFuture.thenAcceptAsync(skuEntity -> {
             ResponseVo<List<ItemGroupVo>> groupResponseVo = this.pmsClient.queryGoupsWithAttrValues(skuEntity.getCategoryId(), skuEntity.getSpuId(), skuId);
             List<ItemGroupVo> itemGroupVos = groupResponseVo.getData();

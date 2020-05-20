@@ -2,12 +2,11 @@ package com.atguigu.gmall.cart.interceptor;
 
 import com.atguigu.gmall.cart.bean.UserInfo;
 import com.atguigu.gmall.cart.config.JwtProperties;
-import com.atguigu.gmall.common.utils.CookieUtils;
-import com.atguigu.gmall.common.utils.JwtUtils;
+import com.atguigu.gmall.common.utils.CookieUtil;
+import com.atguigu.gmall.common.utils.JwtUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -33,13 +32,13 @@ public class LoginInterceptor implements HandlerInterceptor {
         UserInfo userInfo = new UserInfo();
 
         // 1. 获取cookie信息（userKey token）
-        String userKey = CookieUtils.getCookieValue(request, this.properties.getUserKey());
-        String token = CookieUtils.getCookieValue(request, this.properties.getCookieName());
+        String userKey = CookieUtil.getCookieValue(request, this.properties.getUserKey());
+        String token = CookieUtil.getCookieValue(request, this.properties.getCookieName());
 
         // 2. 判断有没有userKey（制作一个userKey放入cookie）
         if (StringUtils.isBlank(userKey)){
             userKey = UUID.randomUUID().toString();
-            CookieUtils.setCookie(request, response, this.properties.getUserKey(), userKey, this.properties.getExpireTime());
+            CookieUtil.setCookie(request, response, this.properties.getUserKey(), userKey, this.properties.getExpireTime());
         }
 
         // 不管有没有token，都需要userKey
@@ -53,7 +52,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         // 4. 解析jwt类型的token，获取用户信息（userId）
-        Map<String, Object> map = JwtUtils.getInfoFromToken(token, this.properties.getPublicKey());
+        Map<String, Object> map = JwtUtil.getInfoFromToken(token, this.properties.getPublicKey());
         Long userId = Long.valueOf(map.get("userId").toString());
 
         // 5. 把userKey和userId传递给后续的业务逻辑（controller service map） TODO

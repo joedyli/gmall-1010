@@ -1,20 +1,17 @@
 package com.atguigu.gmall.order.interceptor;
 
-import com.atguigu.gmall.common.utils.CookieUtils;
-import com.atguigu.gmall.common.utils.JwtUtils;
+import com.atguigu.gmall.common.utils.CookieUtil;
+import com.atguigu.gmall.common.utils.JwtUtil;
 import com.atguigu.gmall.order.config.JwtProperties;
 import com.atguigu.gmall.order.vo.UserInfo;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 @EnableConfigurationProperties({JwtProperties.class})
@@ -34,10 +31,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         try {
             // 1. 获取cookie信息（userKey token）
-            String token = CookieUtils.getCookieValue(request, this.properties.getCookieName());
+            String token = CookieUtil.getCookieValue(request, this.properties.getCookieName());
 
             // 4. 解析jwt类型的token，获取用户信息（userId）
-            Map<String, Object> map = JwtUtils.getInfoFromToken(token, this.properties.getPublicKey());
+            Map<String, Object> map = JwtUtil.getInfoFromToken(token, this.properties.getPublicKey());
             Long userId = Long.valueOf(map.get("userId").toString());
 
             // 5. 把userKey和userId传递给后续的业务逻辑（controller service map） TODO

@@ -77,14 +77,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
     }
 
     @Override
-    public UserEntity queryUser(String username, String password) {
+    public UserEntity queryUser(String loginName, String password) {
 
-        // 1.根据用户名查询用户信息（拿到盐）
-        UserEntity userEntity = this.getOne(new QueryWrapper<UserEntity>().eq("username", username));
+        // 1.根据登录名查询用户信息（拿到盐）
+        UserEntity userEntity = this.getOne(new QueryWrapper<UserEntity>()
+                .eq("username", loginName)
+                .or()
+                .eq("phone", loginName)
+                .or()
+                .eq("email", loginName)
+        );
 
         // 2.判断用户是否为空
         if (userEntity == null){
-            throw new UserException("用户名输入不合法！");
+            throw new UserException("账户输入不合法！");
         }
 
         // 3.对密码加盐加密，并和数据库中的密码进行比较

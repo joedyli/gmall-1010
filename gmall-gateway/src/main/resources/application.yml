@@ -48,10 +48,10 @@ spring:
           uri: lb://item-service
           predicates:
             - Path=/item/**
-        - id: auth-route
+        - id: auth-route # 单点登录路由
           uri: lb://auth-service
           predicates:
-            - Path=/auth/**
+            - Host=sso.gmall.com
         - id: cart-route
           uri: lb://cart-service
           predicates:

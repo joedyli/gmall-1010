@@ -10,7 +10,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Map;
 
-public class JwtUtils {
+public class JwtUtil {
     /**
      * 私钥加密token
      *
