@@ -7,13 +7,14 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.stereotype.Component;
 
 @Component
-public class AuthGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
+public class AuthGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthGatewayFilter.Config> {
 
-    @Autowired
-    private AuthGatewayFilter authGatewayFilter;
+    public AuthGatewayFilterFactory() {
+        super(AuthGatewayFilter.Config.class);
+    }
 
     @Override
-    public GatewayFilter apply(Object config) {
-        return authGatewayFilter;
+    public GatewayFilter apply(AuthGatewayFilter.Config config) {
+        return new AuthGatewayFilter(config);
     }
 }

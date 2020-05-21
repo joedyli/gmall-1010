@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.annotation.PostConstruct;
 import java.security.PublicKey;
+import java.util.List;
 
 @Data
 @Slf4j

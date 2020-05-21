@@ -45,7 +45,7 @@ public class AuthService {
             map.put("username", userEntity.getUsername());
 
             // 4. 为了防止jwt被别人盗取，载荷中加入用户ip地址
-            String ipAddress = IpUtil.getIpAddress(request);
+            String ipAddress = IpUtil.getIpAddressAtService(request);
             map.put("ip", ipAddress);
 
             // 5. 制作jwt类型的token信息

@@ -17,7 +17,7 @@ public class IpUtil {
      * @param request
      * @return
      */
-    public static String getIpAddress(HttpServletRequest request) {
+    public static String getIpAddressAtService(HttpServletRequest request) {
         String ipAddress = null;
         try {
             ipAddress = request.getHeader("x-forwarded-for");
@@ -60,7 +60,7 @@ public class IpUtil {
      * @param request
      * @return
      */
-    public static String getIpAddress(ServerHttpRequest request) {
+    public static String getIpAddressAtGateway(ServerHttpRequest request) {
         HttpHeaders headers = request.getHeaders();
         String ip = headers.getFirst("x-forwarded-for");
         if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
