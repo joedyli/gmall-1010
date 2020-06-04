@@ -37,7 +37,8 @@ public class SkuAttrValueController {
     @Autowired
     private SkuAttrValueService skuAttrValueService;
 
-    @GetMapping("sku/{skuId}")
+    @ApiOperation("查询sku的所有销售属性")
+    @GetMapping("all/{skuId}")
     public ResponseVo<List<SkuAttrValueEntity>> querySkuAttrValuesBySkuId(@PathVariable("skuId")Long skuId){
 
         List<SkuAttrValueEntity> skuAttrValueEntities = this.skuAttrValueService.list(new QueryWrapper<SkuAttrValueEntity>().eq("sku_id", skuId));

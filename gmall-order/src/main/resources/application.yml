@@ -28,13 +28,11 @@ spring:
       simple:
         acknowledge-mode: manual
         prefetch: 1
+  thymeleaf:
+    cache: false
 feign:
   sentinel:
     enabled: true
-auth:
-  jwt:
-    pubKeyPath: D:\\project-1010\\rsa\\rsa.pub
-    cookieName: GMALL-TOKEN
 thread:
   pool:
     coreSize: 100

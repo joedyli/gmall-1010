@@ -121,7 +121,7 @@ public class SpuServiceImpl extends ServiceImpl<SpuMapper, SpuEntity> implements
         // 2.保存sku相关信息
         this.saveSku(spuVo);
 
-//        int i = 1/0;
+        int i = 1/0;
 
         this.rabbitTemplate.convertAndSend("pms-item-exchange", "item.insert", spuVo.getId());
     }

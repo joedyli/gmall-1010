@@ -32,7 +32,7 @@ public class CartListener {
     @Autowired
     private GmallPmsClient pmsClient;
 
-    private static final String KEY_PREFIX = "cart:";
+    private static final String KEY_PREFIX = "cart:info:";
     private static final String PRICE_PREFIX = "cart:price:";
 
     @RabbitListener(bindings = @QueueBinding(

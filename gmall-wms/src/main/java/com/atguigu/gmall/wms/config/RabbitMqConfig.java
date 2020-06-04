@@ -12,7 +12,7 @@ import java.util.Map;
 @Configuration
 public class RabbitMqConfig {
 
-    // 声明延时交换机：order-exchange
+    // 声明延时交换机：借用order-exchange
 
     // 声明延时队列
     @Bean
@@ -31,9 +31,9 @@ public class RabbitMqConfig {
         return new Binding("stock-ttl-queue", Binding.DestinationType.QUEUE, "order-exchange", "stock.ttl", null);
     }
 
-    // 声明死信交换机：order-exchange
+    // 声明死信交换机：借用order-exchange
 
-    // 声明死信队列：order-stock-queue
+    // 声明死信队列：借用order-stock-queue
 
     // 把死信队列绑定到死信交换机：注解中已绑定
 }

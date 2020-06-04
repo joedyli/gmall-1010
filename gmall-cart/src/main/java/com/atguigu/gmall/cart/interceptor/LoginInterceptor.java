@@ -4,7 +4,7 @@ import com.atguigu.gmall.cart.bean.UserInfo;
 import com.atguigu.gmall.cart.config.JwtProperties;
 import com.atguigu.gmall.common.utils.CookieUtil;
 import com.atguigu.gmall.common.utils.JwtUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -19,48 +19,42 @@ import java.util.UUID;
 @EnableConfigurationProperties({JwtProperties.class})
 public class LoginInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private JwtProperties properties;
-
+    // 声明线程的局部变量
     private static final ThreadLocal<UserInfo> THREAD_LOCAL = new ThreadLocal<>();
 
-//    public static UserInfo userInfo;
+    @Autowired
+    private JwtProperties jwtProperties;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        UserInfo userInfo = new UserInfo();
-
-        // 1. 获取cookie信息（userKey token）
-        String userKey = CookieUtil.getCookieValue(request, this.properties.getUserKey());
-        String token = CookieUtil.getCookieValue(request, this.properties.getCookieName());
-
-        // 2. 判断有没有userKey（制作一个userKey放入cookie）
+        // 获取登录头信息
+        String userKey = CookieUtil.getCookieValue(request, jwtProperties.getUserKey());
+        // 如果userKey为空，制作一个userKey放入cookie中
         if (StringUtils.isBlank(userKey)){
             userKey = UUID.randomUUID().toString();
-            CookieUtil.setCookie(request, response, this.properties.getUserKey(), userKey, this.properties.getExpireTime());
+            CookieUtil.setCookie(request, response, jwtProperties.getUserKey(), userKey, jwtProperties.getExpireTime());
         }
-
-        // 不管有没有token，都需要userKey
+        UserInfo userInfo = new UserInfo();
         userInfo.setUserKey(userKey);
-//        request.setAttribute("userKey", userKey);
 
-        // 3. 判断token是否为空
-        if (StringUtils.isBlank(token)){
-            THREAD_LOCAL.set(userInfo);
-            return true;
+        // 获取用户的登录信息
+        String token = CookieUtil.getCookieValue(request, jwtProperties.getCookieName());
+        if (StringUtils.isNotBlank(token)){
+            try {
+                // 解析jwt
+                Map<String, Object> map = JwtUtil.getInfoFromToken(token, jwtProperties.getPublicKey());
+                Long userId = Long.valueOf(map.get("userId").toString());
+                userInfo.setUserId(userId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        // 4. 解析jwt类型的token，获取用户信息（userId）
-        Map<String, Object> map = JwtUtil.getInfoFromToken(token, this.properties.getPublicKey());
-        Long userId = Long.valueOf(map.get("userId").toString());
-
-        // 5. 把userKey和userId传递给后续的业务逻辑（controller service map） TODO
-        userInfo.setUserId(userId);
-//        request.setAttribute("userId", userId);
+        // 把信息放入线程的局部变量
         THREAD_LOCAL.set(userInfo);
 
-        // 不管有没有登录都要放行，登录：获取userId；没有登录：获取userKey
+        // 这里不做拦截，只为获取用户登录信息，不管有没有登录都要放行
         return true;
     }
 

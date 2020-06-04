@@ -12,11 +12,21 @@
                 <div class="yui3-u Left all-sort">
                     <h4>全部商品分类</h4>
                 </div>
-                <div class="sort">
-                    <div class="all-sort-list2" id="app">
-                        <div th:each="cate, stat : ${cates}" th:if="${stat.index < 15}" th:class="${stat.index == 0} ? 'item bo' : 'item'">
-                            <h3><a th:href="'http://list.gmall.com?cid=' + ${cate.id}" th:text="${cate.name}">图书、音像、数字商品</a></h3>
-                            <sub-cates th:cid="${cate.id}"></sub-cates>
+                <!-- html模板 -->
+                <div class="sort" id="app">
+                    <div class="all-sort-list2">
+                        <div v-for="category,stat in categories" :class="stat.index == 0 ? 'item bo' : 'item'" >
+                            <h3 @mouseover="loadSubCategories(category)"><a href="">{{category.name}}</a></h3>
+                            <div class="item-list clearfix">
+                                <div class="subitem" v-for="subCat in category.subs">
+                                    <dl class="fore1">
+                                        <dt><a href="">{{subCat.name}}</a></dt>
+                                        <dd>
+                                            <em v-for="sub in subCat.subs"><a href="">{{sub.name}}</a></em>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -37,38 +47,22 @@
         </div>
     </div>
     <script th:inline="javascript">
-
-        let subCates = {
-            template: `
-                <div class="item-list clearfix">
-                    <div class="subitem">
-                        <dl class="fore1" v-for="subCate in subCates">
-                            <dt><a href="" v-text="subCate.name">电子书</a></dt>
-                            <dd><em v-for="sub in subCate.subs"><a href="" v-text="sub.name">免费</a></em></dd>
-                        </dl>
-                    </div>
-                </div>
-            `,
-            data(){
-                return {
-                    subCates: []
-                }
+        // vue实例
+        let app = new Vue({
+            el: "#app",
+            data: {
+                categories: [[${cates}]]
             },
-            props:['cid'], // 通过props来接收一个父组件传递的属性
-            mounted () {
-                $.get('http://api.gmall.com/index/cates/' + this.cid, ({data}) => {
-                    this.subCates = data;
-                });
-            }
-        };
-
-        let menu = new Vue({
-            el: '#app',
-            components:{
-                subCates: subCates // 将定义的对象注册为组件
+            methods: {
+                loadSubCategories(category){
+                    axios.get("http://api.gmall.com/index/cates/" + category.id).then(({data}) => {
+                        category.subs = data.data;
+                    })
+                }
             }
         })
     </script>
 </div>
+
 </body>
 </html>

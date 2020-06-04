@@ -87,7 +87,7 @@ public class OrderService {
             List<OrderItemVo> items = carts.stream().map(cart -> {
                 OrderItemVo orderItemVo = new OrderItemVo();
                 orderItemVo.setSkuId(cart.getSkuId());
-                orderItemVo.setCount(cart.getCount());
+                orderItemVo.setCount(cart.getCount().intValue());
                 // 根据skuId查询sku
                 CompletableFuture<Void> skuCompletableFuture = CompletableFuture.runAsync(() -> {
                     ResponseVo<SkuEntity> skuEntityResponseVo = this.pmsClient.querySkuById(cart.getSkuId());
@@ -209,6 +209,7 @@ public class OrderService {
             ResponseVo<OrderEntity> orderEntityResponseVo = this.omsClient.save(submitVo);
             orderEntity = orderEntityResponseVo.getData();
         } catch (Exception e) {
+            e.printStackTrace();
             // 如果验库存锁库存成功，但是下单失败，应该立马解锁库存
             this.rabbitTemplate.convertAndSend("order-exchange", "stock.unlock", orderToken);
             // 如果订单创建出现异常的提示信息

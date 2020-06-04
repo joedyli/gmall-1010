@@ -52,16 +52,18 @@ spring:
           uri: lb://auth-service
           predicates:
             - Host=sso.gmall.com
+          filters:
+            - Auth=/xxx
         - id: cart-route
           uri: lb://cart-service
           predicates:
-            - Path=/cart/**
+            - Host=cart.gmall.com
         - id: order-route
           uri: lb://order-service
           predicates:
-            - Path=/order/**
-#          filters:
-#            - Auth
+            - Host=order.gmall.com
+          filters:
+            - Auth=/confirm,/submit
       x-forwarded:
         host-enabled: true
 auth:

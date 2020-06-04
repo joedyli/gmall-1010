@@ -8,7 +8,7 @@ spring:
     sentinel:
       transport:
         dashboard: localhost:8080
-        port: 8179
+        port: 8719
   zipkin:
     base-url: http://localhost:9411/
     sender:
@@ -19,11 +19,30 @@ spring:
       probability: 1
   redis:
     host: 172.16.116.100
-  rabbitmq:
-    host: 172.16.116.100
-    virtual-host: /fengge
-    username: fengge
-    password: fengge
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://172.16.116.100:3306/guli_cart
+    username: root
+    password: root
+#  rabbitmq:
+#    host: 172.16.116.100
+#    virtual-host: /fengge
+#    username: fengge
+#    password: fengge
+  thymeleaf:
+    cache: false
+  task:
+    execution:
+      thread-name-prefix: cart-thread-
+      pool:
+        core-size: 8
+        max-size: 200
+        keep-alive: 60s
+        queue-capacity: 1000
+        allow-core-thread-timeout: false
+      shutdown:
+        await-termination: true
+        await-termination-period: 60
 feign:
   sentinel:
     enabled: true
@@ -31,5 +50,12 @@ auth:
   jwt:
     pubKeyPath: D:\\project-1010\\rsa\\rsa.pub
     cookieName: GMALL-TOKEN
-    userKey: user-key
-    expireTime: 15552000
+    userKey: userKey
+    expireTime: 15552000 # userKey的过期时间
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+logging:
+  level:
+    com.atguigu.gmall: debug

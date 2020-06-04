@@ -22,10 +22,11 @@ import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("order")
+@Controller
 public class OrderController {
 
     @Autowired
@@ -44,31 +45,33 @@ public class OrderController {
     private RedissonClient redissonClient;
 
     @GetMapping("confirm")
-    public ResponseVo<OrderConfirmVo> confirm(){
+    public String confirm(Model model){
 
         OrderConfirmVo confirmVo = this.orderService.confirm();
-        return ResponseVo.ok(confirmVo);
+        model.addAttribute("confirmVo", confirmVo);
+        return "trade";
     }
 
     @PostMapping("submit")
+    @ResponseBody
     public ResponseVo<Object> submit(@RequestBody OrderSubmitVo submitVo){
 
         OrderEntity orderEntity = this.orderService.submit(submitVo);
 
-        try {
-            // 支付页面：调用ali的支付接口
-            PayVo payVo = new PayVo();
-            payVo.setOut_trade_no(orderEntity.getOrderSn());
-            payVo.setTotal_amount(orderEntity.getPayAmount().toString());
-            payVo.setSubject("谷粒商城支付平台");
-            payVo.setBody("谷粒商城订单支付");
-            String form = this.alipayTemplate.pay(payVo);
-
-            return ResponseVo.ok(form);
-        } catch (AlipayApiException e) {
-            e.printStackTrace();
-        }
-        return ResponseVo.fail(0, "调用支付接口失败，请到订单重试！");
+//        try {
+//            // 支付页面：调用ali的支付接口
+//            PayVo payVo = new PayVo();
+//            payVo.setOut_trade_no(orderEntity.getOrderSn());
+//            payVo.setTotal_amount(orderEntity.getPayAmount().toString());
+//            payVo.setSubject("谷粒商城支付平台");
+//            payVo.setBody("谷粒商城订单支付");
+//            String form = this.alipayTemplate.pay(payVo);
+//
+//            return ResponseVo.ok(form);
+//        } catch (AlipayApiException e) {
+//            e.printStackTrace();
+//        }
+        return ResponseVo.ok(orderEntity.getOrderSn());
     }
 
     @PostMapping("pay/success")
